@@ -1,0 +1,24 @@
+@(user: Option[User], page: Page[Album])(implicit messages: Messages, lang: Lang)
+
+@main("Login User") {
+
+@Template.navbar(user)
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3" class="pull-left">
+            @Template.pages()
+        </div>
+        <div class="col-sm-8">
+            @if(user.get.role != Role.Admin){
+            <h3> Your Favorite albums </h3>
+            <hr>
+            @AlbumView.list(page, false)
+            }
+        </div>
+    </div>
+</div>
+
+}
+

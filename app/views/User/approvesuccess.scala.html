@@ -1,0 +1,15 @@
+@(user: User)(implicit messages: Messages)
+@main("Successfully approved") {
+@Template.navbar(None)
+
+<body>
+
+<div class="row">
+
+    <div class="well">
+        <p class="text-center">You have approve @user.username to become an admin</p>
+    </div>
+</div>
+
+</body>
+}

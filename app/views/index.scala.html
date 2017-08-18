@@ -1,0 +1,26 @@
+@(user: Option[User] = None, announcement: Option[String], startingDate: Option[String], endingDate : Option[String])(implicit messages: Messages)
+
+<html>
+
+@Template.navbar(user)
+@main("Main Page") {
+<head>
+    <title>Page Title</title>
+</head>
+<body>
+@if(announcement.isDefined){
+<div class="ancmwell">
+    <i class="fa fa-bullhorn fa-1x" aria-hidden="true"></i>
+    @Messages("announcement.intro") "@announcement.get" from @startingDate.get to @endingDate.get
+</div>
+}
+<div class="row">
+    <div class="well">
+        <h1 class="text-center">Welcome!</h1>
+        <h4 class="text-center">This is the home page for this sample web app</h4>
+    </div>
+</div>
+
+</body>
+}
+</html>

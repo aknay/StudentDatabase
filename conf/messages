@@ -1,0 +1,56 @@
+album.alreadyExisted.error = Album is already existed
+
+#SignIn
+
+signup.thanks=Thank you {0} for sign up!
+signup.ready=You have now your account available
+
+album.notallowed = You are not allowed to modify. Please contact administrator if you want to.
+
+announcement.successful = You have made the announcement as {0} from {1} to {2}
+announcement.empty = You don't have any announcement yet
+announcement.delete.successful = You have deleted the announcement
+announcement.delete.failed = Sorry, the delete operation failed.
+announcement.intro = This is the announcement
+
+event.empty = We don't have any event yet
+
+admin.view.announcement = View announcement
+admin.edit.announcement = Edit announcement
+admin.delete.announcement = Delete announcement
+admin.make.announcement = Make announcement
+admin.view.user.album = View User Albums
+admin.view.events = View Event
+admin.add.event = Add Events
+admin.add.event.successful = {0} has been successfully added.
+admin.add.event.fail = The event might be existed
+admin.delete.event = Delete Event
+admin.delete.event.successful = {0} has been successfully deleted.
+admin.delete.event.fail = Fail to delete the event. The event might not be existed.
+
+settings.profile.title = Profile
+settings.profile.updated = Your profile is updated.
+
+reset.password.title = Recover your account
+reset.password.successful = Your password has been reset
+reset.password.sent.email = We''ve just sent an email to {0} with the instructions to reset your password
+reset.password.require.same.password = Try again. Both passwords must match
+################################################################################################
+# MAILS
+
+mail.welcome.subject = Welcome! Please confirm your account
+mail.welcome.hello = Welcome {0}!
+mail.welcome.prelink = Thanks for signing up for this great webpage! Please verify your email address by clicking the link below.
+mail.welcome.postlink = Note that this link will expire in 24 hours if it''s not activated.
+
+mail.forgotpwd.subject = Reset your password
+mail.forgotpwd.prelink = Someone (hopefully you) has requested a password reset for your account. Follow the link below to set a new password:
+mail.forgotpwd.postlink = Note that this link will expire in 24 hours. If you don''t wish to reset your password, disregard this email and no action will be taken.
+
+mail.sign = Team Titan
+
+
+#################################
+# STUDENT
+student.alreadyExisted.error = Student is already existed
+student.added.success = Student is added

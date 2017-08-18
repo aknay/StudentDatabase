@@ -1,0 +1,58 @@
+@(user: Option[User], userInfo: Option[UserInfo])(implicit messages: Messages, lang: Lang)
+
+@main("Login User") {
+
+@Template.navbar(user)
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3" class = "pull-left">
+            @Template.pages()
+        </div>
+        <div class="col-sm-8">
+            <div class="container">
+                <!--Ref:: http://bootsnipp.com/snippets/featured/simple-user-profile-->
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">@userInfo.get.name</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-3 col-lg-3 " align="center"> <img alt="User Pic" src="http://babyinfoforyou.com/wp-content/uploads/2014/10/avatar-300x300.png" class="img-circle img-responsive"> </div>
+                                    <div class=" col-md-9 col-lg-9 ">
+                                        <table class="table table-user-information">
+                                            <tbody>
+                                            <tr>
+                                                <td>Email:</td>
+                                                <td>@user.get.email</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Location:</td>
+                                                <td>@userInfo.get.location</td>
+                                            </tr>
+                                            <td>Phone Number</td>
+                                            <td>TODO
+                                            </td>
+
+                                            </tr>
+
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                                <span class="pull-right">
+                            <a href="@routes.UserController.editUserInfo" data-original-title="Edit this user" data-toggle="tooltip" type="button" class="btn btn-sm btn-warning"><i class="glyphicon glyphicon-edit"></i></a>
+                        </span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+}
+

@@ -1,0 +1,16 @@
+@(user: User)(implicit messages: Messages)
+@main("Almost Signed Up") {
+@Template.navbar(None)
+
+<body>
+
+<div class="row">
+
+    <div class="well">
+        <p class="text-center">Thank you for signing up @user.username</p>
+        <p class="text-center">Email has been sent to @user.email</p>
+    </div>
+</div>
+
+</body>
+}

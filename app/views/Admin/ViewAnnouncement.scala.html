@@ -1,0 +1,17 @@
+@(user: Option[User], startingDate: Option[String] = None, endingDate: Option[String] = None, announcement: Option[String] = None)(implicit messages: Messages)
+
+@import helper.Implicits._
+@Template.navbar(user)
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        @if(startingDate.isEmpty || endingDate.isEmpty || announcement.isEmpty){
+        <h4> @Messages("announcement.empty") </h4>
+        }else{
+        <h3> Your Announcement</h3>
+        <h4> You made the announcement as &quot; @announcement &quot; starting from @startingDate to @endingDate </h4>
+        }
+        <a href="@routes.AdminController.admin()">Go back to admin page</a>
+    </div>
+</div>
+
+

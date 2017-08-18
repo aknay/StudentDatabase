@@ -1,0 +1,42 @@
+@(user: User, adminTool: Option[AdminTool])(implicit messages: Messages, lang: Lang)
+
+@main("Master Page") {
+@Template.navbar(Some(user))
+
+
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <h2> This is your Admin Tool Page</h2>
+        <div>
+            <h4> Album Related </h4>
+            <li><a href="@routes.AdminController.viewAllNonAdminUser()">@Messages("admin.view.user.album")</a></li>
+
+            @if(adminTool.isDefined){
+            <h4> Announcement Related </h4>
+            @if(adminTool.get.announcement.isDefined){
+            <li><a href="@routes.AdminController.viewAnnouncementForm()">@Messages("admin.edit.announcement")</a></li>
+            <li><a href="@routes.AdminController.viewAnnouncement()">@Messages("admin.view.announcement")</a></li>
+            <li><a href="@routes.AdminController.deleteAnnouncement()" onclick="return myFunction();">@Messages("admin.delete.announcement")</a>
+            </li>
+            }else{
+            <li><a href="@routes.AdminController.viewAnnouncementForm()">@Messages("admin.make.announcement")t</a></li>
+            }
+            <h4> Event Related </h4>
+            <li><a href="@routes.AdminController.addEvent()">@Messages("admin.add.event")</a></li>
+            @if(adminTool.get.event.isDefined){
+            <li><a href="@routes.AdminController.viewEvents()">@Messages("admin.view.events")</a></li>
+            <li><a href="@routes.AdminController.deleteEvent()">@Messages("admin.delete.event")</a></li>
+            }
+            }
+            <script>
+                function myFunction() {
+                    return confirm("Are you sure you want to delete the announcement?");
+                      }
+
+            </script>
+        </div>
+
+    </div>
+
+</div>
+}

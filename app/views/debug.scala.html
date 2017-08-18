@@ -1,0 +1,7 @@
+@()(implicit lang: Lang)
+@import play.api.Play.current
+@import play.Logger;
+<footer>
+    lang = @lang.code,
+    test = @Logger.debug("Attempting risky calculation.")
+</footer>

@@ -1,0 +1,15 @@
+@(user: Option[User], event: String)(implicit messages: Messages)
+
+@import helper.Implicits._
+@Template.navbar(user)
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <h1> Successful</h1>
+        <h4> @Messages("admin.delete.event.successful", event)</h4>
+        <a href="@routes.AdminController.admin()">Go back to admin page</a>
+    </div>
+</div>
+
+
+
+

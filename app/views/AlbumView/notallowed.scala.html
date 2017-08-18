@@ -1,0 +1,9 @@
+@(user: Option[User])(implicit messages: Messages, lang: Lang, flash: Flash)
+@Template.navbar(user)
+
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <h3>@Messages("album.notallowed")</h3>
+        <a href="@routes.UserController.listAlbum(0)">back to your profile page</a>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+@* Note: there is not space between ...album])(implicit mess...*@
+@(user: Option[User], id: Long, albumForm: Form[Album])(implicit messages: Messages, lang: Lang)
+@import helper._
+@Template.navbar(user)
+<row>
+        <h1>Edit Album</h1>
+
+        @form(routes.AlbumController.update(id)) {
+        @inputText(albumForm("artist"))
+        @inputText(albumForm("title"))
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        }
+
+</row>
+

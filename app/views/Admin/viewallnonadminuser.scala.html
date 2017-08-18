@@ -1,0 +1,10 @@
+@(admin: User, userList: Seq[User], page: Int = 0)
+@Template.navbar(Some(admin))
+<h1>Welcome @admin.username!</h1>
+
+<ul>
+    @for(user <- userList) {
+    @**<li>@user.username</li>**@
+    <li><a href="@routes.AdminController.viewAllAlbumsFromNonAdminUser(user.id.get, page)">@user.username</a><li>
+    }
+</ul>

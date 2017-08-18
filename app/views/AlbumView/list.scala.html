@@ -1,0 +1,86 @@
+@*REF: https://github.com/playframework/play-slick/blob/master/samples/computer-database/app/views/list.scala.html*@
+
+@(currentPage: Page[Album], isReadOnly: Boolean = true, userId: Long = 0)
+
+@****************************************
+* Helper generating navigation links    *
+****************************************@
+@link(newPage: Int) = @{
+routes.UserController.listAlbum(newPage)
+}
+
+@userLink(newPage: Int) =@{
+routes.AdminController.viewAllAlbumsFromNonAdminUser(userId, newPage)
+}
+
+<h4> Total number Of albums: @currentPage.total</h4>
+<a href="@routes.AlbumController.add" class="btn btn-primary">Add Album</a>
+<hr>
+<div class="container">
+        @Option(currentPage.items).filterNot(_.isEmpty).map { albums =>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Artist</th>
+                <th>Title</th>
+                @if(!isReadOnly){
+                <th>Delete</th>
+                <th>Edit</th>
+                }
+            </tr>
+            </thead>
+            <tbody>
+
+            @for(album <- albums){
+            <tr>
+                <td>@album.artist</td>
+                <td>@album.title</td>
+                @if(!isReadOnly){
+                <td><a href="@routes.AlbumController.delete(album.id.get)">delete</a></td>
+                <td><a href="@routes.AlbumController.edit(album.id.get)">edit</a></td>
+                }
+            </tr>
+            }
+            </tbody>
+        </table>
+
+
+        <div id="pagination" class="pagination">
+            <ul>
+                @currentPage.prev.map { page =>
+                <li class="prev">
+                    @if(!isReadOnly){
+                    <a href="@link(page)">&larr; Previous</a>
+                    }else{
+                    <a href="@userLink(page)">&larr; Previous</a>
+                    }
+
+                </li>
+                }.getOrElse {
+                <li class="prev disabled">
+                    <a>&larr; Previous</a>
+                </li>
+                }
+                <li class="current">
+                    <a>Displaying @(currentPage.offset + 1) to @(currentPage.offset + albums.size) of
+                        @currentPage.total</a>
+                </li>
+                @currentPage.next.map { page =>
+                <li class="next">
+                    @if(!isReadOnly){
+                    <a href="@link(page)">Next &rarr;</a>
+                    }else{
+                    <a href="@userLink(page)">Next &rarr;</a>
+                    }
+                </li>
+                }.getOrElse {
+                <li class="next disabled">
+                    <a>Next &rarr;</a>
+                </li>
+                }
+            </ul>
+        </div>
+        }
+</div>
+

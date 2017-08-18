@@ -1,0 +1,16 @@
+@(user: User)(implicit messages: Messages)
+@main("Waiting for verification") {
+@Template.navbar(None)
+
+<body>
+
+<div class="row">
+
+    <div class="well">
+        <p class="text-center">Thank you for requesting @user.username as admin</p>
+        <p class="text-center">Email has been sent to developer for the verification</p>
+    </div>
+</div>
+
+</body>
+}
