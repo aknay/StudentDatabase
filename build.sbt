@@ -27,6 +27,7 @@ libraryDependencies ++= Seq(
   "com.mohiva" %% "play-silhouette-testkit" % "4.0.0" % "test",
   "net.codingwell" %% "scala-guice" % "4.0.1",
   "com.iheart" %% "ficus" % "1.4.0",
-  "com.typesafe.play" %% "play-mailer" % "5.0.0"
+  "com.typesafe.play" %% "play-mailer" % "5.0.0",
+  "com.github.tototoshi" %% "scala-csv" % "1.3.5"
 )
 

@@ -77,4 +77,9 @@ object Forms {
 
       )(Student.apply)(Student.unapply)
     )
+
+  val studentCsvForm = Form(tuple(
+      "event_name" -> nonEmptyText,
+      "csv" -> nonEmptyText
+    ))
 }

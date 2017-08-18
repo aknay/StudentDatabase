@@ -1,0 +1,20 @@
+@import helper._
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<p>
+    @form(action = routes.StudentController.uploadCsv, 'enctype -> "multipart/form-data") {
+
+    <input type="file" name="csv">
+
+<p>
+    <input type="submit" class="btn">
+</p>
+
+
+}
+</p>
+</body>
+</html>

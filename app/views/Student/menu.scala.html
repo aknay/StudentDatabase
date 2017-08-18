@@ -14,8 +14,10 @@
             @if(user.get.role != Role.Admin){
             <h3> Menu For Student </h3>
             <a href="@routes.StudentController.add" class="btn btn-primary">Add Student</a>
+            <a href="@routes.StudentController.addWithCsv" class="btn btn-primary">Add Student With CSV Format</a>
             <a href="@routes.StudentController.add" class="btn btn-primary">Remove Student</a>
             <a href="@routes.StudentController.add" class="btn btn-primary">View Students</a>
+            <a href="@routes.StudentController.upload" class="btn btn-primary">Upload CSV</a>
             <hr>
             <hr>
             }
