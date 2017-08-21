@@ -6,7 +6,7 @@ import com.github.tototoshi.csv.CSVReader
 import com.mohiva.play.silhouette.api.Silhouette
 import dao.{StudentDao, UserDao}
 import forms.Forms
-import models.{Student, User}
+import models.{Student, StudentWithStatus, User}
 import org.joda.time.DateTime
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -101,7 +101,9 @@ class StudentController @Inject()(studentDao: StudentDao, userDao: UserDao)
   }
 
   def uploadCsv = SecuredAction.async(parse.multipartFormData) { implicit request =>
-    println("going to upload")
+    val user = Some(request.identity)
+    val studentList = ListBuffer[Student]()
+    val studentListWithStatus = ListBuffer[StudentWithStatus]()
     request.body.file("csv").map { csv =>
       val reader = CSVReader.open(csv.ref.file)
 
@@ -116,9 +118,9 @@ class StudentController @Inject()(studentDao: StudentDao, userDao: UserDao)
       val subLeague = "League (Sub-Category)"
       val studentName = "Student Name"
 
-      val studentList = ListBuffer[Student]()
+
       for (a <- v1) {
-        val c = a.get("Country")
+        val c = a.get(country)
         val t = a.get(teamName)
         val i = a.get(institution)
         val l = a.get(league)
@@ -138,11 +140,21 @@ class StudentController @Inject()(studentDao: StudentDao, userDao: UserDao)
 
       }
 
-      studentList.foreach(println)
+      for (student <- studentList){
 
+        val status: Future[Boolean] = for {
+          a <- studentDao.insertByUser(student, user.get.id.get)
+        } yield a
+
+        status.map {
+          case true => studentListWithStatus += StudentWithStatus(student.name,student.teamName, student.institution, student.country,student.league, student.subLeague, isExisted = false)
+          case false => studentListWithStatus += StudentWithStatus(student.name,student.teamName, student.institution, student.country,student.league, student.subLeague, isExisted = true)
+        }
+      }
 
     }
-    Future.successful(Ok)
+
+    Future.successful(Ok(views.html.Student.add_student_with_table(user,studentListWithStatus)))
   }
 
 }

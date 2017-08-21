@@ -55,7 +55,7 @@ class StudentControllerTests extends PlaySpec with GuiceOneAppPerTest with Scala
       }
     }
   }
-  
+
   val NORMAL_USER_EMAIL = "xyz@xyz.com"
 
   trait NormalUserContext {

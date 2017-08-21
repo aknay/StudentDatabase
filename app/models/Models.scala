@@ -40,3 +40,13 @@ case class Student(id: Option[Long],
                    lastUpdateTime: Option[DateTime],
                    updateBy: Option[Long]
                   )
+
+case class StudentWithStatus(
+                              name: String,
+                              teamName: String,
+                              institution: String,
+                              country: String,
+                              league: String,
+                              subLeague: String,
+                              isExisted: Boolean
+                  )

@@ -1,0 +1,48 @@
+@(user: Option[User], students: Seq[StudentWithStatus])(implicit messages: Messages, flash: Flash)
+
+@import helper.Implicits._
+@import b3.vertical.fieldConstructor
+@Template.navbar(user)
+
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+
+        <h1>Add Student</h1>
+
+        @flash.get("error").map { message =>
+        <p class="bg-danger"> @message</p>
+        }
+        @flash.get("success").map { message =>
+        <p class="bg-success"> @message</p>
+        }
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Team Name</th>
+                <th>Institution</th>
+                <th>Country</th>
+                <th>League</th>
+                <th>League (Sub-Category)</th>
+                <th>Status</th>
+
+            </tr>
+            </thead>
+            <tbody>
+
+            @for(student <- students){
+            <tr>
+                <td>@student.name</td>
+                <td>@student.teamName</td>
+                <td>@student.institution</td>
+                <td>@student.country</td>
+                <td>@student.league</td>
+                <td>@student.subLeague</td>
+                <td>@if(student.isExisted){Existed}else{Successfully Added}</td>
+            </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
