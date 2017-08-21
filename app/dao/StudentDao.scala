@@ -1,11 +1,13 @@
 package dao
 
+import java.util.Date
 import javax.inject.{Inject, Singleton}
 
 import models.{Student, User}
-import org.joda.time.DateTime
+import utils.Utils
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
+import slick.jdbc.meta.MTable
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
@@ -31,11 +33,20 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
 
   private val selectAlbumAction = studentTable.result
 
+  createTableIfNotExisted
+
   /** Ref: http://slick.lightbend.com/doc/3.0.0/database.html */
 
   //This is the blocking method with maximum waiting time of 2 seconds
   //This is also helper method for DBIO
   private def blockExec[T](action: DBIO[T]): T = Await.result(db.run(action), 5 seconds)
+
+  def createTableIfNotExisted {
+    val x = blockExec(MTable.getTables(STUDENT_TABLE_NAME.toString())).toList
+    if (x.isEmpty) {
+      blockExec(createTableAction)
+    }
+  }
 
   def getUserTable: Future[Seq[User]] = db.run(userTable.result)
 
@@ -43,7 +54,7 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     getStudentByName(student.name).map{
       case Some(s) => false
       case None =>
-        db.run(studentTable += student.copy(updateBy = Some(id), lastUpdateTime = Some(new DateTime())))
+        db.run(studentTable += student.copy(updateBy = Some(id), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date()))))
         true
     }
   }
@@ -58,6 +69,13 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
 
   def deleteStudentByName(name: String): Future[Unit] = {
     db.run(studentTable.filter(_.name === name).delete).map { _ => () }
+  }
+
+  def geLeagueList: Future[Seq[(String, String)]] = {
+       for {
+        l <- getAllStudents()
+        a <- Future.successful(l.map{b => (b.league, b.subLeague)})
+      } yield a.distinct
   }
 
 }

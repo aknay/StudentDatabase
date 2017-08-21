@@ -4,8 +4,10 @@ package ModelTests
   * Created by aknay on 4/4/17.
   */
 
+import java.util.Date
+
 import dao.{AdminToolDao, UserDao}
-import org.joda.time.DateTime
+//import org.joda.time.DateTime
 import org.scalatest.concurrent.ScalaFutures
 import org.specs2.mutable.Specification
 import play.api.Application
@@ -46,8 +48,8 @@ class AdminToolDaoTest extends Specification with ScalaFutures {
 
   "should create announcement" in new WithApplicationLoader() {
     val announcement = "This is an announcement"
-    val startingDate = DateTime.now()
-    val endingDate = DateTime.now()
+    val startingDate = new Date()
+    val endingDate = new Date()
     val user = insertUser()
     adminToolDao.createAnnouncement(user, announcement, startingDate, endingDate).futureValue
     val secondAdminTool = adminToolDao.getAdminTool.futureValue.get
@@ -60,7 +62,7 @@ class AdminToolDaoTest extends Specification with ScalaFutures {
   "should delete an announcement" in new WithApplication() {
     val user = insertUser()
     val announcement = "This is an announcement"
-    adminToolDao.createAnnouncement(user, announcement, DateTime.now(), DateTime.now()).futureValue
+    adminToolDao.createAnnouncement(user, announcement, new Date(), new Date()).futureValue
     adminToolDao.deleteAnnouncement(user).futureValue
     val adminTool = adminToolDao.getAdminTool.futureValue
     adminTool.get.announcement === None

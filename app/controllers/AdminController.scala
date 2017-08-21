@@ -1,15 +1,15 @@
 package controllers
 
+import java.util.Date
 import javax.inject.Inject
 
-import com.mohiva.play.silhouette.api.{LoginInfo, Silhouette}
+import com.mohiva.play.silhouette.api.Silhouette
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{Clock, PasswordHasherRegistry}
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
 import dao.{AdminToolDao, AlbumDao, UserDao}
 import forms.Forms
 import models._
-import org.joda.time.DateTime
 import play.api.Configuration
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.Flash
@@ -67,8 +67,8 @@ class AdminController @Inject()(userDao: UserDao,
   def viewAnnouncement = SecuredAction(WithServices(Role.Admin)).async { implicit request =>
     val user = request.identity
     val resultAndOptions = for {
-      startDate: Option[Option[DateTime]] <- adminToolDao.getStartingDate
-      endingDate: Option[Option[DateTime]] <- adminToolDao.getEndingDate
+      startDate: Option[Option[Date]] <- adminToolDao.getStartingDate
+      endingDate: Option[Option[Date]] <- adminToolDao.getEndingDate
       announcement: Option[Option[String]] <- adminToolDao.getAnnouncement
     } yield (startDate, endingDate, announcement)
 

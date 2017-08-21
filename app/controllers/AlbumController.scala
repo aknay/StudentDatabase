@@ -1,5 +1,6 @@
 package controllers
 
+import java.util.Date
 import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api.Silhouette
@@ -9,7 +10,6 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import dao.{AdminToolDao, AlbumDao, UserDao}
 import forms.Forms
 import models.User
-import org.joda.time.DateTime
 import utils.Silhouette.{AuthController, MyEnv}
 
 import scala.concurrent.Future
@@ -27,14 +27,14 @@ class AlbumController @Inject()(albumDao: AlbumDao, userDao: UserDao, adminToolD
   /** we can use album form directly with Album case class by applying id as Option[Long] */
 
   def isItAllowedToModify: Future[Boolean] = {
-    val deadline: Future[(Option[DateTime], Option[DateTime])] = for {
+    val deadline: Future[(Option[Date], Option[Date])] = for {
       adminTool <- adminToolDao.getAdminTool
     } yield (adminTool.get.startingDate, adminTool.get.endingDate)
 
     deadline.map {
       case (None, None) => true
       case (Some(s), Some(e)) =>
-        val currentTime = DateTime.now()
+        val currentTime = new Date()
         val resultStartingTime = currentTime.compareTo(s)
         val resultEndingTime = currentTime.compareTo(e)
         resultEndingTime < 0 && resultStartingTime > 0

@@ -45,10 +45,10 @@ object Forms {
     mapping(
       "id" -> ignored(None: Option[Long]),
       "userId" -> optional(longNumber),
-      "startingDate" -> optional(jodaDate("dd-MM-yyyy")),
-      "endingDate" -> optional(jodaDate("dd-MM-yyyy")),
+      "startingDate" -> optional(sqlTimestamp("dd-MM-yyyy")),
+      "endingDate" -> optional(sqlTimestamp("dd-MM-yyyy")),
       "announcement" -> optional(nonEmptyText),
-      "lastUpdateTime" -> optional(jodaDate("dd-MM-yyyy")),
+      "lastUpdateTime" -> optional(sqlTimestamp("dd-MM-yyyy")),
       "event" -> ignored(None: Option[String])
     )(AdminTool.apply)(AdminTool.unapply))
 
@@ -72,7 +72,7 @@ object Forms {
         "league" -> nonEmptyText,
         "subLeague" -> nonEmptyText,
         "event" -> nonEmptyText,
-        "last_upate_time" -> optional(jodaDate("dd-MM-yyyy")),
+        "last_upate_time" -> optional(sqlTimestamp("dd-MM-yyyy")),
         "updateBy" -> optional(longNumber)
 
       )(Student.apply)(Student.unapply)

@@ -2,27 +2,26 @@ package controllers
 
 import javax.inject.Inject
 
+import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.{Clock, Credentials, PasswordHasherRegistry}
-import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, Flash, RequestHeader}
-
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.data.Forms._
-import com.mohiva.play.silhouette.api._
-import com.mohiva.play.silhouette.impl.authenticators.CookieAuthenticator
 import com.mohiva.play.silhouette.impl.exceptions.IdentityNotFoundException
 import com.mohiva.play.silhouette.impl.providers.CredentialsProvider
-import utils.Silhouette.Implicits._
-import dao.{AdminToolDao, AlbumDao, UserDao}
-import models._
+import dao.{AlbumDao, UserDao}
 import forms.Forms
+import models._
 import play.api.Configuration
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.mvc.{Action, Flash}
 import utils.Mailer
+import utils.Silhouette.Implicits._
 import utils.Silhouette._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
   * Created by aknay on 27/12/16.
@@ -202,7 +201,7 @@ class UserController @Inject()(userDao: UserDao,
     }
   }
 
-  def listAlbum(page: Int) = SecuredAction.async { request =>
+  def listAlbum(page: Int) = SecuredAction.async { implicit request =>
     val user: User = request.identity
     val tempId: Long = user.id.get
     albumDao.listWithPage(tempId, page = page).map {

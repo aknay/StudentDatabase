@@ -1,4 +1,5 @@
 package views.html.b3.my
+import play.api.i18n.MessagesProvider
 
 package object vertical {
 
@@ -18,6 +19,10 @@ package object vertical {
     def apply(fieldInfo: B3FieldInfo, inputHtml: Html)(implicit messages: Messages) = bsFieldConstructor(fieldInfo, inputHtml)
     /* Renders the corresponding template of the form group */
     def apply(contentHtml: Html, argsMap: Map[Symbol, Any])(implicit messages: Messages) = bsFormGroup(contentHtml, argsMap)
+
+    override def apply(fieldInfo: B3FieldInfo, inputHtml: Html)(implicit msgsProv: MessagesProvider): Html = ???
+
+    override def apply(contentHtml: Html, argsMap: Map[Symbol, Any])(implicit msgsProv: MessagesProvider): Html = ???
   }
 
   /**

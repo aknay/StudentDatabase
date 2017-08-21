@@ -1,5 +1,6 @@
 package controllers
 
+import java.util.Date
 import javax.inject._
 
 import play.api.i18n.MessagesApi
@@ -7,7 +8,6 @@ import play.api.mvc.Action
 import com.mohiva.play.silhouette.api.Silhouette
 import dao.{AdminToolDao, UserDao}
 import models.User
-import org.joda.time.DateTime
 import utils.Silhouette.{AuthController, MyEnv}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -27,7 +27,7 @@ class HomeController @Inject()(userDao: UserDao,
   userDao.createUserInfoTableIfNotExisted
 
   def index = UserAwareAction.async { implicit request =>
-    val p: Future[(Option[DateTime], Option[DateTime], Option[String], Option[User])] = for {
+    val p: Future[(Option[Date], Option[Date], Option[String], Option[User])] = for {
       startingDate <- adminToolDao.getStartingDate
       endingDate <- adminToolDao.getEndingDate
       announcement <- adminToolDao.getAnnouncement

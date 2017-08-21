@@ -1,5 +1,6 @@
 package controllers
 
+import java.util.Date
 import javax.inject.Inject
 
 import com.github.tototoshi.csv.CSVReader
@@ -7,7 +8,7 @@ import com.mohiva.play.silhouette.api.Silhouette
 import dao.{StudentDao, UserDao}
 import forms.Forms
 import models.{Student, StudentWithStatus, User}
-import org.joda.time.DateTime
+import utils.Utils
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc.{Action, Flash}
@@ -131,7 +132,7 @@ class StudentController @Inject()(studentDao: StudentDao, userDao: UserDao)
         if (c.isDefined && t.isDefined && i.isDefined && l.isDefined && sl.isDefined && sn.isDefined) {
           println(c.get)
           val student = Student(name = sn.get, teamName = t.get, institution = i.get,
-            country = c.get, league = l.get, subLeague = sl.get, id = Some(1), event = "", lastUpdateTime = Some(new DateTime()), updateBy = Some(1))
+            country = c.get, league = l.get, subLeague = sl.get, id = Some(1), event = "", lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())), updateBy = Some(1))
           studentList += student
         }
         else {
@@ -151,6 +152,8 @@ class StudentController @Inject()(studentDao: StudentDao, userDao: UserDao)
           case false => studentListWithStatus += StudentWithStatus(student.name,student.teamName, student.institution, student.country,student.league, student.subLeague, isExisted = true)
         }
       }
+      
+      studentListWithStatus.foreach(println)
 
     }
 

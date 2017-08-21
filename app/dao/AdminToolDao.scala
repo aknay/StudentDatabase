@@ -4,20 +4,20 @@ package dao
   * Created by aknay on 2/3/17.
   */
 
-import java.io
+import java.sql.Timestamp
+import java.text.SimpleDateFormat
+import java.util.Date
 import javax.inject.Inject
 
 import com.google.inject.Singleton
-import slick.jdbc.meta.MTable
+import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
-import models._
-import org.joda.time.DateTime
-import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
+import slick.jdbc.meta.MTable
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
 /** Ref: http://slick.lightbend.com/doc/3.0.0/schemas.html */
 
@@ -29,18 +29,18 @@ class AdminToolDao @Inject()(userDao: UserDao)(protected val dbConfigProvider: D
   import profile.api._
 
 
-  val ADMIN_TOOL_TABLE_NAME = "AdminToolTable"
+  val ADMIN_TOOL_TABLE_NAME = "admin_tool_table"
 
   /** Since we are using album id as Option[Long], so we need to use id.? */
   class AdminToolTable(tag: Tag) extends Table[AdminTool](tag, ADMIN_TOOL_TABLE_NAME) {
 
-    def staringDate = column[Option[DateTime]]("strtingDate", O.Default(None))
+    def staringDate = column[Option[Timestamp]]("strtingDate", O.Default(None))
 
-    def endingDate = column[Option[DateTime]]("endingDate", O.Default(None))
+    def endingDate = column[Option[Timestamp]]("endingDate", O.Default(None))
 
     def announcement = column[Option[String]]("announcement")
 
-    def lastUpdateTime = column[Option[DateTime]]("lastUpdateTime")
+    def lastUpdateTime = column[Option[Timestamp]]("lastUpdateTime")
 
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
@@ -58,10 +58,11 @@ class AdminToolDao @Inject()(userDao: UserDao)(protected val dbConfigProvider: D
 
   //Note: I cannot add this whole table as trait due to implicit
   //Either Inject dao error or it doesn't recognize the implicit value
-  implicit val dateTimeTest = MappedColumnType.base[DateTime, String](
-    { b => b.toString }, // map Date to String
-    { i => DateTime.parse(i) } // map Sting to Date
+  implicit val dateTimeTest = MappedColumnType.base[Date, Timestamp](
+    { b => new Timestamp(b.getTime) }, // map Date to String
+    { i => new Date(i.getTime)}
   )
+
 
   this.createTableIfNotExisted
   this.createAdminToolIfNotExisted
@@ -78,7 +79,7 @@ class AdminToolDao @Inject()(userDao: UserDao)(protected val dbConfigProvider: D
 
   def createAdminToolIfNotExisted = {
     getAdminTool.map { a => {
-      if (a.isEmpty) db.run(adminToolTable += AdminTool(Some(1), Some(1), None, None, None, Some(DateTime.now()), None))
+      if (a.isEmpty) db.run(adminToolTable += AdminTool(Some(1), Some(1), None, None, None, Some(new Timestamp(new Date().getTime)), None))
       else println("status" + a.isDefined)
     }
     }
@@ -88,11 +89,11 @@ class AdminToolDao @Inject()(userDao: UserDao)(protected val dbConfigProvider: D
     db.run(adminToolTable.map(_.announcement).result.headOption)
   }
 
-  def getStartingDate: Future[Option[Option[DateTime]]] = {
+  def getStartingDate: Future[Option[Option[Date]]] = {
     db.run(adminToolTable.map(_.staringDate).result.headOption)
   }
 
-  def getEndingDate: Future[Option[Option[DateTime]]] = {
+  def getEndingDate: Future[Option[Option[Date]]] = {
     db.run(adminToolTable.map(_.endingDate).result.headOption)
   }
 
@@ -101,7 +102,7 @@ class AdminToolDao @Inject()(userDao: UserDao)(protected val dbConfigProvider: D
   }
 
   def updateAdminTool(user: User, adminTool: AdminTool): Future[Int] = {
-    val adminToolCopy = adminTool.copy(adminId = user.id, lastUpdateTime = Some(DateTime.now)) //always update with time and adminId
+    val adminToolCopy = adminTool.copy(adminId = user.id, lastUpdateTime = Some(getCurrentTimeStamp)) //always update with time and adminId
     db.run(adminToolTable.update(adminToolCopy))
   }
 
@@ -123,20 +124,22 @@ class AdminToolDao @Inject()(userDao: UserDao)(protected val dbConfigProvider: D
     true
   }
 
-  val DATE_PATTERN: DateTimeFormatter = DateTimeFormat.forPattern("dd-MMM-YYYY")
+  val DATE_PATTERN = "dd-MMM-YYYY"
 
-  def getFormattedDateString(date: DateTime): String = {
-    date.toString(DATE_PATTERN)
+  def getFormattedDateString(date: Date): String = {
+    val df = new SimpleDateFormat(DATE_PATTERN)
+    df.format(date)
   }
 
-  def getFormattedDate(date: String): DateTime = {
-    DateTime.parse(date, DATE_PATTERN)
-  }
-
-  def createAnnouncement(user: User, announcement: String, startingDate: DateTime, endingDate: DateTime): Future[Unit] = {
+  def createAnnouncement(user: User, announcement: String, startingDate: Date, endingDate: Date): Future[Unit] = {
     for {
       adminTool <- getAdminTool
-      result <- updateAdminTool(user, adminTool.get.copy(announcement = Some(announcement), startingDate = Some(startingDate), endingDate = Some(endingDate)))
+      result <- {
+        val at = adminTool.get.copy(announcement = Some(announcement), startingDate = Some(getTimeStampFromDate(startingDate)), endingDate = Some(getTimeStampFromDate(endingDate)))
+        updateAdminTool(user, at)
+      }
+
+
     } yield {}
   }
 
@@ -253,5 +256,8 @@ class AdminToolDao @Inject()(userDao: UserDao)(protected val dbConfigProvider: D
       }
     } yield result
   }
+
+  private def getCurrentTimeStamp: Timestamp = new Timestamp(new Date().getTime)
+  def getTimeStampFromDate(date: Date): Timestamp = new Timestamp(date.getTime)
 
 }

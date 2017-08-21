@@ -3,16 +3,22 @@ package models
 /**
   * Created by s43132 on 20/2/2017.
   */
+
+import java.time.{LocalDateTime, ZoneId}
+import java.util.Date
+
 import utils.Silhouette.MailToken
-import org.joda.time.DateTime
 import java.util.UUID
 import scala.concurrent.Future
 
-case class MailTokenUser(id: String, email: String, expirationTime: DateTime, isSignUp: Boolean) extends MailToken
+case class MailTokenUser(id: String, email: String, expirationTime: Date, isSignUp: Boolean) extends MailToken
 
 object MailTokenUser {
-  def apply(email: String, isSignUp: Boolean): MailTokenUser =
-    MailTokenUser(UUID.randomUUID().toString, email, (new DateTime()).plusHours(24), isSignUp)
+  def apply(email: String, isSignUp: Boolean): MailTokenUser = {
+    val l = LocalDateTime.now.plusHours(12)
+    val date: Date = Date.from(l.atZone(ZoneId.systemDefault()).toInstant())
+    MailTokenUser(UUID.randomUUID().toString, email, date, isSignUp)
+  }
 
   val tokens = scala.collection.mutable.HashMap[String, MailTokenUser]()
 
@@ -30,11 +36,14 @@ object MailTokenUser {
   }
 }
 
-case class MailTokenMasterUser(id: String, email: String, expirationTime: DateTime, isToChangeToMaster: Boolean) extends MailToken
+case class MailTokenMasterUser(id: String, email: String, expirationTime: Date, isToChangeToMaster: Boolean) extends MailToken
 
 object MailTokenMasterUser {
-  def apply(email: String, isToChangeToMaster: Boolean): MailTokenMasterUser =
-    MailTokenMasterUser(UUID.randomUUID().toString, email, (new DateTime()).plusHours(24), isToChangeToMaster)
+  def apply(email: String, isToChangeToMaster: Boolean): MailTokenMasterUser = {
+    val l = LocalDateTime.now.plusHours(12)
+    val date: Date = Date.from(l.atZone(ZoneId.systemDefault()).toInstant())
+    MailTokenMasterUser(UUID.randomUUID().toString, email, date, isToChangeToMaster)
+  }
 
   val tokens = scala.collection.mutable.HashMap[String, MailTokenMasterUser]()
 

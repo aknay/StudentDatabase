@@ -1,7 +1,9 @@
 package dao
 
+import java.sql.Timestamp
+import java.util.Date
+
 import models.{Album, Role, Student, User}
-import org.joda.time.DateTime
 import play.api.db.slick.HasDatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
@@ -86,13 +88,13 @@ trait StudentTableComponent extends UserTableComponent {
 
     def event = column[String]("event")
 
-    def lastUpdateTime = column[DateTime]("last_update_time")
+    def lastUpdateTime = column[Timestamp]("last_update_time")
 
     def updateBy = column[Long]("update_by")
 
-    implicit val dateTimeTest = MappedColumnType.base[DateTime, String](
-      { b => b.toString }, // map Date to String
-      { i => DateTime.parse(i) } // map Sting to Date
+    implicit val dateTimeTest = MappedColumnType.base[Date, Timestamp](
+      { b => new Timestamp((b.getTime)) }, // map Date to String
+      { i => new Date(i.getTime)}
     )
 
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
