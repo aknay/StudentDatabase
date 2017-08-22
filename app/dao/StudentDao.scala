@@ -3,7 +3,7 @@ package dao
 import java.util.Date
 import javax.inject.{Inject, Singleton}
 
-import models.{Student, User}
+import models.{LeagueInfo, Student, StudentsPerLeague, User}
 import utils.Utils
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
@@ -71,11 +71,20 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     db.run(studentTable.filter(_.name === name).delete).map { _ => () }
   }
 
-  def geLeagueList: Future[Seq[(String, String)]] = {
+  def getLeagueList: Future[Seq[LeagueInfo]] = {
        for {
         l <- getAllStudents()
-        a <- Future.successful(l.map{b => (b.league, b.subLeague)})
+        a <- Future.successful(l.map{b => LeagueInfo(b.league, b.subLeague)})
       } yield a.distinct
+  }
+
+  def getStudentsPerLeague(leagueInfo: LeagueInfo): Future[StudentsPerLeague] = {
+   val a: Future[Seq[Student]] = db.run(studentTable
+      .filter(_.league === leagueInfo.league)
+      .filter(_.subLeague === leagueInfo.subLeague)
+      .result)
+
+    a.map(b => StudentsPerLeague(leagueInfo, b))
   }
 
 }

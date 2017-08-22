@@ -7,12 +7,11 @@ import com.github.tototoshi.csv.CSVReader
 import com.mohiva.play.silhouette.api.Silhouette
 import dao.{StudentDao, UserDao}
 import forms.Forms
-import models.{Student, StudentWithStatus, User}
+import models._
 import play.api.i18n.{I18nSupport, Messages}
-import play.api.mvc.{AbstractController, ControllerComponents}
-import utils.Utils
-import play.api.mvc.Flash
+import play.api.mvc.{AbstractController, ControllerComponents, Flash}
 import utils.Silhouette.{AuthController, MyEnv}
+import utils.Utils
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,7 +27,7 @@ class StudentController @Inject()(components: ControllerComponents,
                                   studentDao: StudentDao,
                                   userDao: UserDao)
                                  (val silhouette: Silhouette[MyEnv])(implicit exec: ExecutionContext)
-extends AbstractController(components) with I18nSupport with AuthController {
+  extends AbstractController(components) with I18nSupport with AuthController {
   /** we can use album form directly with Album case class by applying id as Option[Long] */
 
   def add = SecuredAction.async { implicit request =>
@@ -103,6 +102,22 @@ extends AbstractController(components) with I18nSupport with AuthController {
     Ok(views.html.Student.upload())
   }
 
+  def report = SecuredAction.async { implicit request =>
+    val user = Some(request.identity)
+    Future.successful(Ok(views.html.Student.report(user)))
+  }
+
+  def studentsPerLeague = SecuredAction.async { implicit request =>
+
+    val studentsPerLeagueList: Future[Seq[StudentsPerLeague]] = for {
+      l <- studentDao.getLeagueList
+      z <- Future.sequence(l map (v => studentDao.getStudentsPerLeague(v)))
+    } yield z
+
+    val user = Some(request.identity)
+    studentsPerLeagueList.map(a => Ok(views.html.Student.numberofstudentsateachleague(user, a)))
+  }
+
   def uploadCsv = SecuredAction.async(parse.multipartFormData) { implicit request =>
     val user = Some(request.identity)
     val studentList = ListBuffer[Student]()
@@ -143,15 +158,15 @@ extends AbstractController(components) with I18nSupport with AuthController {
 
       }
 
-      for (student <- studentList){
+      for (student <- studentList) {
 
         val status: Future[Boolean] = for {
           a <- studentDao.insertByUser(student, user.get.id.get)
         } yield a
 
         status.map {
-          case true => studentListWithStatus += StudentWithStatus(student.name,student.teamName, student.institution, student.country,student.league, student.subLeague, isExisted = false)
-          case false => studentListWithStatus += StudentWithStatus(student.name,student.teamName, student.institution, student.country,student.league, student.subLeague, isExisted = true)
+          case true => studentListWithStatus += StudentWithStatus(student.name, student.teamName, student.institution, student.country, student.league, student.subLeague, isExisted = false)
+          case false => studentListWithStatus += StudentWithStatus(student.name, student.teamName, student.institution, student.country, student.league, student.subLeague, isExisted = true)
         }
       }
 
@@ -159,7 +174,7 @@ extends AbstractController(components) with I18nSupport with AuthController {
 
     }
 
-    Future.successful(Ok(views.html.Student.add_student_with_table(user,studentListWithStatus)))
+    Future.successful(Ok(views.html.Student.add_student_with_table(user, studentListWithStatus)))
   }
 
 }

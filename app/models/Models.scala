@@ -50,3 +50,7 @@ case class StudentWithStatus(
                               subLeague: String,
                               isExisted: Boolean
                   )
+
+case class LeagueInfo(league: String, subLeague: String)
+
+case class StudentsPerLeague(leagueInfo: LeagueInfo, students: Seq[Student])

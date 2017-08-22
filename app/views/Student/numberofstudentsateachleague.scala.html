@@ -1,0 +1,41 @@
+@(user: Option[User], studentsPerLeagueList: Seq[StudentsPerLeague])(implicit messages: Messages)
+
+@main("Login User") {
+
+@Template.navbar(user)
+
+
+<div class="row">
+    <div class="col-md-1"> </div>
+    <div class="col-md-10">
+
+        <h1>Student Per League</h1>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>League</th>
+                <th>League (Sub-Category)</th>
+                <th>Number Of Students</th>
+
+            </tr>
+            </thead>
+            <tbody>
+
+            @for(studentsPerLeague <- studentsPerLeagueList){
+            <tr>
+                <td>@studentsPerLeague.leagueInfo.league</td>
+                <td>@studentsPerLeague.leagueInfo.subLeague</td>
+                <td>@studentsPerLeague.students.size</td>
+            </tr>
+            }
+            </tbody>
+        </table>
+
+        <div class="well"><a href="@routes.StudentController.menu"> Back To Student Menu</a> </div>
+
+    </div>
+    <div class="col-md-1"> </div>
+</div>
+
+}

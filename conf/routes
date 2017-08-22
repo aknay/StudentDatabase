@@ -51,6 +51,8 @@ POST    /student/submit              controllers.StudentController.submitStudent
 POST    /student/submitwithcsv       controllers.StudentController.submitStudentWithCsvForm
 POST    /student/uploadcsv           controllers.StudentController.uploadCsv
 GET    /student/upload           controllers.StudentController.upload
+GET    /student/report           controllers.StudentController.report
+GET    /student/studentsperleague           controllers.StudentController.studentsPerLeague
 
 
 
