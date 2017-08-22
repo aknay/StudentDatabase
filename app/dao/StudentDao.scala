@@ -3,11 +3,11 @@ package dao
 import java.util.Date
 import javax.inject.{Inject, Singleton}
 
-import models.{LeagueInfo, Student, StudentsPerLeague, User}
-import utils.Utils
+import models._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
 import slick.jdbc.meta.MTable
+import utils.Utils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
@@ -78,13 +78,33 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       } yield a.distinct
   }
 
+  def getTeamWithCountryList: Future[Seq[TeamWithCountry]] = {
+    for {
+      l <- getAllStudents()
+      a <- Future.successful(l map{b => TeamWithCountry(b.teamName, b.country)})
+    } yield a.distinct
+  }
+
+  private def teamSize(students: Seq[Student]): Int ={
+  students.map(s => s.teamName).distinct.size
+  }
+
+  private def localTeamSize(students: Seq[Student]): Int = {
+    val localCountry = "Singapore"
+    students.filter( s => s.country.compareToIgnoreCase(localCountry) == 0)
+      .map( t => t.teamName).distinct.size
+  }
+
+  private def internationalTeamSize(students: Seq[Student]): Int = {
+    teamSize(students) - localTeamSize(students)
+  }
+
   def getStudentsPerLeague(leagueInfo: LeagueInfo): Future[StudentsPerLeague] = {
-   val a: Future[Seq[Student]] = db.run(studentTable
+    val a: Future[Seq[Student]] = db.run(studentTable
       .filter(_.league === leagueInfo.league)
       .filter(_.subLeague === leagueInfo.subLeague)
       .result)
 
-    a.map(b => StudentsPerLeague(leagueInfo, b))
+    a.map(b => StudentsPerLeague(leagueInfo, b, b.size, teamSize(b),localTeamSize(b), internationalTeamSize(b)))
   }
-
 }

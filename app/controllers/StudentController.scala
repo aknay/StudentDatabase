@@ -110,6 +110,8 @@ class StudentController @Inject()(components: ControllerComponents,
   def studentsPerLeague = SecuredAction.async { implicit request =>
 
     val studentsPerLeagueList: Future[Seq[StudentsPerLeague]] = for {
+
+
       l <- studentDao.getLeagueList
       z <- Future.sequence(l map (v => studentDao.getStudentsPerLeague(v)))
     } yield z
@@ -127,8 +129,6 @@ class StudentController @Inject()(components: ControllerComponents,
 
       val v = reader.allWithHeaders()
 
-      val v1 = v.take(2)
-
       val country = "Country"
       val teamName = "Team Name"
       val institution = "Institution"
@@ -136,8 +136,7 @@ class StudentController @Inject()(components: ControllerComponents,
       val subLeague = "League (Sub-Category)"
       val studentName = "Student Name"
 
-
-      for (a <- v1) {
+      for (a <- v) {
         val c = a.get(country)
         val t = a.get(teamName)
         val i = a.get(institution)

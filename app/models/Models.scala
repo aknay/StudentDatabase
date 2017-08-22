@@ -53,4 +53,12 @@ case class StudentWithStatus(
 
 case class LeagueInfo(league: String, subLeague: String)
 
-case class StudentsPerLeague(leagueInfo: LeagueInfo, students: Seq[Student])
+case class StudentsPerLeague(leagueInfo: LeagueInfo,
+                             students: Seq[Student],
+                             studentSize: Int,
+                             teamSize: Int,
+                             localTeamSize: Int,
+                             internationalTeamSize: Int
+                             )
+
+case class TeamWithCountry(team: String, country: String)

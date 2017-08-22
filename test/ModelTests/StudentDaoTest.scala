@@ -48,8 +48,6 @@ class StudentDaoTest extends Specification with ScalaFutures {
     country = "some country", league = leagueFive.league, subLeague = leagueFive.subLeague,
     event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
-
-
   def getNormalUser: User = {
     User(Some(1), "user@user.com", "password", "username", Role.NormalUser, activated = true)
   }
@@ -77,9 +75,7 @@ class StudentDaoTest extends Specification with ScalaFutures {
 
   "should add user" in new WithApplication() {
     val result = userDao.insertUser(getNormalUser).futureValue
-//    result === true
     val user = userDao.getUserByEmail(getNormalUser.email).futureValue
-//    user.isDefined === true
 
     studentDao.deleteStudentByName(getStudent.name).futureValue
 
@@ -114,7 +110,7 @@ class StudentDaoTest extends Specification with ScalaFutures {
   }
 
   "should get unique league list" in new WithApplication() {
-    val allStudents =studentDao.getAllStudents().futureValue
+    val allStudents = studentDao.getAllStudents().futureValue
     allStudents.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
     userDao.insertUser(getNormalUser).futureValue
 
@@ -130,13 +126,13 @@ class StudentDaoTest extends Specification with ScalaFutures {
     leagueList.size === 5
     println(leagueList)
 
-    val allStudentsToDelete =studentDao.getAllStudents().futureValue
+    val allStudentsToDelete = studentDao.getAllStudents().futureValue
     allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
 
   }
 
   "should get students from each league" in new WithApplication() {
-    val allStudents =studentDao.getAllStudents().futureValue
+    val allStudents = studentDao.getAllStudents().futureValue
     allStudents.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
     userDao.insertUser(getNormalUser).futureValue
 
@@ -157,15 +153,8 @@ class StudentDaoTest extends Specification with ScalaFutures {
     val studentsFromLeagueTwo = studentDao.getStudentsPerLeague(leagueTwo).futureValue
     studentsFromLeagueTwo.students.size === 1
 
-    val allStudentsToDelete =studentDao.getAllStudents().futureValue
+    val allStudentsToDelete = studentDao.getAllStudents().futureValue
     allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
-
   }
 
-
-
-
-
-
 }
-
