@@ -3,26 +3,25 @@ package controllers
 import java.util.Date
 import javax.inject._
 
-import play.api.i18n.MessagesApi
-import play.api.mvc.Action
 import com.mohiva.play.silhouette.api.Silhouette
 import dao.{AdminToolDao, UserDao}
 import models.User
+import play.api.i18n.I18nSupport
+import play.api.mvc.{AbstractController, ControllerComponents}
 import utils.Silhouette.{AuthController, MyEnv}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the
   * application's home page.
   */
 @Singleton
-class HomeController @Inject()(userDao: UserDao,
+class HomeController @Inject()(components: ControllerComponents,
+                                userDao: UserDao,
                                adminToolDao: AdminToolDao)
-                              (val messagesApi: MessagesApi,
-                               val silhouette: Silhouette[MyEnv])
-  extends AuthController {
+                              (val silhouette: Silhouette[MyEnv])(implicit exec: ExecutionContext)
+ extends AbstractController(components) with AuthController with I18nSupport {
 
   userDao.createUserInfoTableIfNotExisted
 

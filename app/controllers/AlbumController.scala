@@ -4,15 +4,14 @@ import java.util.Date
 import javax.inject.Inject
 
 import com.mohiva.play.silhouette.api.Silhouette
-import play.api.mvc.Flash
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.mvc.{AbstractController, ControllerComponents, Flash}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import dao.{AdminToolDao, AlbumDao, UserDao}
 import forms.Forms
 import models.User
 import utils.Silhouette.{AuthController, MyEnv}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Created by aknay on 5/12/2016.
@@ -21,9 +20,9 @@ import scala.concurrent.Future
   * Without this --> Form: could not find implicit value for parameter messages: play.api.i18n.Messages
   * Ref: http://stackoverflow.com/questions/30799988/play-2-4-form-could-not-find-implicit-value-for-parameter-messages-play-api-i
   * */
-class AlbumController @Inject()(albumDao: AlbumDao, userDao: UserDao, adminToolDao: AdminToolDao)
-                               (val messagesApi: MessagesApi, val silhouette: Silhouette[MyEnv])
-  extends AuthController with I18nSupport {
+class AlbumController @Inject()(components: ControllerComponents, albumDao: AlbumDao, userDao: UserDao, adminToolDao: AdminToolDao)
+                               (val silhouette: Silhouette[MyEnv])(implicit exec: ExecutionContext)
+  extends AbstractController(components) with I18nSupport with AuthController {
   /** we can use album form directly with Album case class by applying id as Option[Long] */
 
   def isItAllowedToModify: Future[Boolean] = {

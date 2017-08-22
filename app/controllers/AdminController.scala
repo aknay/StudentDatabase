@@ -11,19 +11,19 @@ import dao.{AdminToolDao, AlbumDao, UserDao}
 import forms.Forms
 import models._
 import play.api.Configuration
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.Flash
+import play.api.i18n.{I18nSupport, Messages}
+import play.api.mvc.{AbstractController, ControllerComponents, Flash}
 import utils.Mailer
 import utils.Silhouette._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 
 /**
   * Created by aknay on 3/3/17.
   */
-class AdminController @Inject()(userDao: UserDao,
+class AdminController @Inject()(components: ControllerComponents,
+                                userDao: UserDao,
                                 albumDao: AlbumDao,
                                 adminToolDao: AdminToolDao,
                                 albumController: AlbumController,
@@ -36,9 +36,9 @@ class AdminController @Inject()(userDao: UserDao,
                                 conf: Configuration,
                                 clock: Clock,
                                 passwordHasherRegistry: PasswordHasherRegistry)
-                               (val messagesApi: MessagesApi,
-                                val silhouette: Silhouette[MyEnv])
-  extends AuthController with I18nSupport {
+                               (val silhouette: Silhouette[MyEnv])
+                               (implicit exec: ExecutionContext)
+  extends AbstractController(components) with I18nSupport with AuthController{
 
 
   def admin = SecuredAction(WithServices(Role.Admin)).async { implicit request =>
@@ -153,7 +153,7 @@ class AdminController @Inject()(userDao: UserDao,
     }
   }
 
-  def submitDeleteEventForm = SecuredAction(WithServices(Role.Admin)).async { implicit request =>
+  def submitDeleteEventForm = silhouette.SecuredAction(WithServices(Role.Admin)).async { implicit request =>
     val user = request.identity
     Forms.eventForm.bindFromRequest.fold(
       formWithError => {

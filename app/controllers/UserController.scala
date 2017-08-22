@@ -14,14 +14,13 @@ import models._
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, Flash}
+import play.api.i18n.{I18nSupport, Messages}
+import play.api.mvc.{AbstractController, ControllerComponents, Flash}
 import utils.Mailer
 import utils.Silhouette.Implicits._
 import utils.Silhouette._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Created by aknay on 27/12/16.
@@ -40,7 +39,8 @@ object UserController {
   }
 }
 
-class UserController @Inject()(userDao: UserDao,
+class UserController @Inject()(components: ControllerComponents,
+                                userDao: UserDao,
                                albumDao: AlbumDao,
                                albumController: AlbumController,
                                userService: UserService,
@@ -52,9 +52,8 @@ class UserController @Inject()(userDao: UserDao,
                                conf: Configuration,
                                clock: Clock,
                                passwordHasherRegistry: PasswordHasherRegistry)
-                              (val messagesApi: MessagesApi,
-                               val silhouette: Silhouette[MyEnv])
-  extends AuthController with I18nSupport {
+                              (val silhouette: Silhouette[MyEnv])(implicit exec: ExecutionContext)
+  extends AbstractController(components) with I18nSupport with AuthController {
 
   userDao.createUserInfoTableIfNotExisted
 

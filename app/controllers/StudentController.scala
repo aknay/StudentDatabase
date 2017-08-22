@@ -8,14 +8,14 @@ import com.mohiva.play.silhouette.api.Silhouette
 import dao.{StudentDao, UserDao}
 import forms.Forms
 import models.{Student, StudentWithStatus, User}
+import play.api.i18n.{I18nSupport, Messages}
+import play.api.mvc.{AbstractController, ControllerComponents}
 import utils.Utils
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.mvc.{Action, Flash}
+import play.api.mvc.Flash
 import utils.Silhouette.{AuthController, MyEnv}
 
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Created by aknay on 5/12/2016.
@@ -24,9 +24,11 @@ import scala.concurrent.Future
   * Without this --> Form: could not find implicit value for parameter messages: play.api.i18n.Messages
   * Ref: http://stackoverflow.com/questions/30799988/play-2-4-form-could-not-find-implicit-value-for-parameter-messages-play-api-i
   * */
-class StudentController @Inject()(studentDao: StudentDao, userDao: UserDao)
-                                 (val messagesApi: MessagesApi, val silhouette: Silhouette[MyEnv])
-  extends AuthController with I18nSupport {
+class StudentController @Inject()(components: ControllerComponents,
+                                  studentDao: StudentDao,
+                                  userDao: UserDao)
+                                 (val silhouette: Silhouette[MyEnv])(implicit exec: ExecutionContext)
+extends AbstractController(components) with I18nSupport with AuthController {
   /** we can use album form directly with Album case class by applying id as Option[Long] */
 
   def add = SecuredAction.async { implicit request =>
@@ -152,7 +154,7 @@ class StudentController @Inject()(studentDao: StudentDao, userDao: UserDao)
           case false => studentListWithStatus += StudentWithStatus(student.name,student.teamName, student.institution, student.country,student.league, student.subLeague, isExisted = true)
         }
       }
-      
+
       studentListWithStatus.foreach(println)
 
     }
