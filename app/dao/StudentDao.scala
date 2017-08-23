@@ -1,5 +1,6 @@
 package dao
 
+
 import java.util.Date
 import javax.inject.{Inject, Singleton}
 
@@ -12,6 +13,8 @@ import utils.Utils
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
+import scala.math.BigDecimal.RoundingMode
+
 
 /**
   * Created by aknay on 27/12/16.
@@ -99,12 +102,25 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     teamSize(students) - localTeamSize(students)
   }
 
+  private def getRoundedPercentage(first: Int, second: Int): Double = {
+    val double = first.toDouble * 100.0/ second.toDouble
+    val bd = BigDecimal(double)
+    bd.setScale(1, RoundingMode.HALF_UP).toDouble
+  }
+
   def getStudentsPerLeague(leagueInfo: LeagueInfo): Future[StudentsPerLeague] = {
-    val a: Future[Seq[Student]] = db.run(studentTable
+    val studentsPerLeague: Future[Seq[Student]] = db.run(studentTable
       .filter(_.league === leagueInfo.league)
       .filter(_.subLeague === leagueInfo.subLeague)
       .result)
-
-    a.map(b => StudentsPerLeague(leagueInfo, b, b.size, teamSize(b),localTeamSize(b), internationalTeamSize(b)))
+    
+     for {
+      totalStudents <- getAllStudents()
+      totalTeamSize <- Future.successful(teamSize(totalStudents))
+      totalStudentSize <- Future.successful(totalStudents.size)
+      students <- studentsPerLeague
+    } yield StudentsPerLeague(leagueInfo, students, students.size,
+      teamSize(students), localTeamSize(students), internationalTeamSize(students),
+      getRoundedPercentage(students.size,totalStudentSize), getRoundedPercentage(teamSize(students), totalTeamSize))
   }
 }

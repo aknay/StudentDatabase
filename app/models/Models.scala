@@ -58,7 +58,9 @@ case class StudentsPerLeague(leagueInfo: LeagueInfo,
                              studentSize: Int,
                              teamSize: Int,
                              localTeamSize: Int,
-                             internationalTeamSize: Int
+                             internationalTeamSize: Int,
+                             studentDistribution: Double,
+                             teamDistribution: Double
                              )
 
 case class TeamWithCountry(team: String, country: String)
