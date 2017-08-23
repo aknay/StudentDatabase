@@ -62,7 +62,6 @@ class StudentController @Inject()(components: ControllerComponents,
       })
   }
 
-
   def submitStudentWithCsvForm = SecuredAction.async { implicit request =>
     val user: User = request.identity
     val stduentForm = Forms.studentCsvForm.bindFromRequest()
@@ -108,16 +107,13 @@ class StudentController @Inject()(components: ControllerComponents,
   }
 
   def studentsPerLeague = SecuredAction.async { implicit request =>
-
-    val studentsPerLeagueList: Future[Seq[StudentsPerLeague]] = for {
-
-
-      l <- studentDao.getLeagueList
-      z <- Future.sequence(l map (v => studentDao.getStudentsPerLeague(v)))
-    } yield z
-
     val user = Some(request.identity)
-    studentsPerLeagueList.map(a => Ok(views.html.Student.numberofstudentsateachleague(user, a)))
+    for {
+      l <- studentDao.getLeagueList
+      studentsPerLeague <- Future.sequence(l map (v => studentDao.getStudentsPerLeague(v)))
+      totalSizeInfo <- studentDao.getTotalSizeInfo
+    } yield Ok(views.html.Student.numberofstudentsateachleague(user, studentsPerLeague, totalSizeInfo))
+
   }
 
   def uploadCsv = SecuredAction.async(parse.multipartFormData) { implicit request =>

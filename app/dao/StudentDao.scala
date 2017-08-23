@@ -54,7 +54,7 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   def getUserTable: Future[Seq[User]] = db.run(userTable.result)
 
   def insertByUser(student: Student, id: Long): Future[Boolean] = {
-    getStudentByName(student.name).map{
+    getStudentByName(student.name).map {
       case Some(s) => false
       case None =>
         db.run(studentTable += student.copy(updateBy = Some(id), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date()))))
@@ -75,27 +75,29 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   }
 
   def getLeagueList: Future[Seq[LeagueInfo]] = {
-       for {
-        l <- getAllStudents()
-        a <- Future.successful(l.map{b => LeagueInfo(b.league, b.subLeague)})
-      } yield a.distinct
-  }
-
-  def getTeamWithCountryList: Future[Seq[TeamWithCountry]] = {
     for {
       l <- getAllStudents()
-      a <- Future.successful(l map{b => TeamWithCountry(b.teamName, b.country)})
+      a <- Future.successful(l.map { b => LeagueInfo(b.league, b.subLeague) })
     } yield a.distinct
   }
 
-  private def teamSize(students: Seq[Student]): Int ={
-  students.map(s => s.teamName).distinct.size
+  private def teamSize(students: Seq[Student]): Int = {
+    students.map(s => s.teamName).distinct.size
   }
 
   private def localTeamSize(students: Seq[Student]): Int = {
     val localCountry = "Singapore"
-    students.filter( s => s.country.compareToIgnoreCase(localCountry) == 0)
-      .map( t => t.teamName).distinct.size
+    students.filter(s => s.country.compareToIgnoreCase(localCountry) == 0)
+      .map(t => t.teamName).distinct.size
+  }
+
+  private def getLocalStudentSize(students: Seq[Student]): Int = {
+    val localCountry = "Singapore"
+    students.count(s => s.country.compareToIgnoreCase(localCountry) == 0)
+  }
+
+  private def getInternationalStudentSize(student: Seq[Student]): Int = {
+    student.size - getLocalStudentSize(student)
   }
 
   private def internationalTeamSize(students: Seq[Student]): Int = {
@@ -103,9 +105,23 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   }
 
   private def getRoundedPercentage(first: Int, second: Int): Double = {
-    val double = first.toDouble * 100.0/ second.toDouble
+    val double = first.toDouble * 100.0 / second.toDouble
     val bd = BigDecimal(double)
     bd.setScale(1, RoundingMode.HALF_UP).toDouble
+  }
+
+  def getTotalSizeInfo: Future[TotalSizeInfo] = {
+    for {
+      students <- getAllStudents()
+      totalNumberOfStudent <- Future.successful(students.size)
+      totalNumberOfTeam <- Future.successful(teamSize(students))
+      totalNumberOfLocalTeam <- Future.successful(localTeamSize(students))
+      totalNumberOfInternationalTeam <- Future.successful(internationalTeamSize(students))
+      totalNumberOfLocalStudent <- Future.successful(getLocalStudentSize(students))
+      totalNumberOfInternationalStudent <- Future.successful(getInternationalStudentSize(students))
+    } yield TotalSizeInfo(totalNumberOfStudent, totalNumberOfTeam,
+      totalNumberOfLocalTeam, totalNumberOfInternationalTeam,
+      totalNumberOfLocalStudent, totalNumberOfInternationalStudent)
   }
 
   def getStudentsPerLeague(leagueInfo: LeagueInfo): Future[StudentsPerLeague] = {
@@ -113,14 +129,15 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       .filter(_.league === leagueInfo.league)
       .filter(_.subLeague === leagueInfo.subLeague)
       .result)
-    
-     for {
+
+    for {
       totalStudents <- getAllStudents()
       totalTeamSize <- Future.successful(teamSize(totalStudents))
       totalStudentSize <- Future.successful(totalStudents.size)
       students <- studentsPerLeague
     } yield StudentsPerLeague(leagueInfo, students, students.size,
+      getLocalStudentSize(students), getInternationalStudentSize(students),
       teamSize(students), localTeamSize(students), internationalTeamSize(students),
-      getRoundedPercentage(students.size,totalStudentSize), getRoundedPercentage(teamSize(students), totalTeamSize))
+      getRoundedPercentage(students.size, totalStudentSize), getRoundedPercentage(teamSize(students), totalTeamSize))
   }
 }

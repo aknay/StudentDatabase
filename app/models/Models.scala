@@ -1,4 +1,5 @@
 package models
+
 import java.sql.Timestamp
 
 import utils.Silhouette.IdentitySilhouette
@@ -21,7 +22,7 @@ case class User(id: Option[Long],
 
 case class UserInfo(userId: Long, name: String, location: String)
 
-case class AdminTool(id: Option[Long] = None, adminId: Option[Long], startingDate : Option[Timestamp],
+case class AdminTool(id: Option[Long] = None, adminId: Option[Long], startingDate: Option[Timestamp],
                      endingDate: Option[Timestamp], announcement: Option[String], lastUpdateTime: Option[Timestamp], event: Option[String])
 
 case class Page[A](items: Seq[A], page: Int, offset: Long, total: Long) {
@@ -49,18 +50,27 @@ case class StudentWithStatus(
                               league: String,
                               subLeague: String,
                               isExisted: Boolean
-                  )
+                            )
 
 case class LeagueInfo(league: String, subLeague: String)
 
 case class StudentsPerLeague(leagueInfo: LeagueInfo,
                              students: Seq[Student],
                              studentSize: Int,
+                             numberOfLocalStudent: Int,
+                             numberOfInternationalStudent: Int,
                              teamSize: Int,
                              localTeamSize: Int,
                              internationalTeamSize: Int,
                              studentDistribution: Double,
                              teamDistribution: Double
-                             )
+                            )
 
-case class TeamWithCountry(team: String, country: String)
+case class TotalSizeInfo(numberOfStudent: Int,
+                         numberOfTeam: Int,
+                         numberOfLocalTeam: Int,
+                         numberOfInternationalTeam: Int,
+                         numberOfLocalStudent: Int,
+                         numberOfInternationalStudent: Int
+                        )
+
