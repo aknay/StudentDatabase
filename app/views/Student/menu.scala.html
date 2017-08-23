@@ -7,14 +7,13 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-3" class="pull-left">
+        <div class="col-md-2" class="pull-left">
             @Template.pages()
         </div>
-        <div class="col-sm-8">
+        <div class="col-md-10">
             @if(user.get.role != Role.Admin){
             <h3> Menu For Student </h3>
             <a href="@routes.StudentController.add" class="btn btn-primary">Add Student</a>
-            <a href="@routes.StudentController.addWithCsv" class="btn btn-primary">Add Student With CSV Format</a>
             <a href="@routes.StudentController.add" class="btn btn-primary">Remove Student</a>
             <a href="@routes.StudentController.add" class="btn btn-primary">View Students</a>
             <a href="@routes.StudentController.upload" class="btn btn-primary">Upload CSV</a>

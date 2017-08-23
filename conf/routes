@@ -46,7 +46,6 @@ POST	/user/reset-password/:token	controllers.UserController.handleResetPassword(
 
 GET     /student/add                controllers.StudentController.add
 GET     /student/menu                controllers.StudentController.menu
-GET     /student/addwithcsv          controllers.StudentController.addWithCsv
 POST    /student/submit              controllers.StudentController.submitStudentForm
 POST    /student/submitwithcsv       controllers.StudentController.submitStudentWithCsvForm
 POST    /student/uploadcsv           controllers.StudentController.uploadCsv

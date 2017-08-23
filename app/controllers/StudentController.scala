@@ -35,12 +35,6 @@ class StudentController @Inject()(components: ControllerComponents,
     Future.successful(Ok(views.html.Student.add(user, Forms.studentForm)))
   }
 
-  def addWithCsv = SecuredAction.async { implicit request =>
-    val user = Some(request.identity)
-    Future.successful(Ok(views.html.Student.add_with_csv(user, Forms.studentCsvForm)))
-  }
-
-
   def submitStudentForm = SecuredAction.async { implicit request =>
     val user: User = request.identity
     val stduentForm = Forms.studentForm.bindFromRequest()
