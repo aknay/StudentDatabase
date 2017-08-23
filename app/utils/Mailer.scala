@@ -15,7 +15,7 @@ class Mailer @Inject() (ms: MailService) {
   implicit def html2String(html: Html): String = html.toString
 
   def welcome(user: User, link: String)(implicit m: Messages) {
-    ms.sendEmailAsync(user.email)(
+    ms.sendEmailAsync("aknay@outlook.com")(
       subject = Messages("mail.welcome.subject"),
       bodyHtml = mails.welcome(user.email, link),
       bodyText = mails.welcometext(user.email, link)
@@ -32,7 +32,7 @@ class Mailer @Inject() (ms: MailService) {
 
 //TODO
   def forgotPassword(email: String, link: String)(implicit m: Messages) {
-    ms.sendEmailAsync(email)(
+    ms.sendEmailAsync("aknay@outlook.com")(
       subject = Messages("mail.forgotpwd.subject"),
       bodyHtml = mails.forgotPassword(email, link),
       bodyText = mails.forgotPasswordTxt(email, link)
