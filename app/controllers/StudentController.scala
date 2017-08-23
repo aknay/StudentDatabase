@@ -85,7 +85,6 @@ class StudentController @Inject()(components: ControllerComponents,
     Future.successful(Ok)
   }
 
-
   def menu = SecuredAction.async { implicit request =>
     val user = Some(request.identity)
     Future.successful(Ok(views.html.Student.menu(user)))
@@ -138,7 +137,7 @@ class StudentController @Inject()(components: ControllerComponents,
         if (c.isDefined && t.isDefined && i.isDefined && l.isDefined && sl.isDefined && sn.isDefined) {
           println(c.get)
           val student = Student(name = sn.get, teamName = t.get, institution = i.get,
-            country = c.get, league = l.get, subLeague = sl.get, id = Some(1), event = "", lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())), updateBy = Some(1))
+            country = c.get, league = l.get, subLeague = sl.get, id = Some(1), event = Some(""), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())), updateBy = Some(1))
           studentList += student
         }
         else {
@@ -202,9 +201,34 @@ class StudentController @Inject()(components: ControllerComponents,
       },
       success = {
         successfulLeagueForm =>
-            Future.successful(Redirect(routes.StudentController.view(successfulLeagueForm)))
+          Future.successful(Redirect(routes.StudentController.view(successfulLeagueForm)))
       })
   }
 
+  def update(id: Long) = SecuredAction.async { implicit request =>
+    val user = Some(request.identity)
+    studentDao.getStudentById(id).map {
+      student => if (student.isDefined) Ok(views.html.Student.update(user, id, Forms.studentForm.fill(student.get))) else NotFound
+    }
+  }
+
+  def submitUpdate(id: Long) = SecuredAction.async { implicit request =>
+    val user = Some(request.identity)
+    val studentForm = Forms.studentForm.bindFromRequest()
+
+    studentForm.fold(
+      hasErrors = {
+        errorForm =>
+          println("we are having error, try to check form data is matched with html")
+          println(errorForm.data)
+          Future.successful(Ok(views.html.Student.update(user, id, errorForm)))
+      },
+      success = { student =>
+
+        for {
+          _ <- studentDao.updateStudentById(id, user.get, student)
+        } yield Redirect(routes.StudentController.view(combineLeagueAndSubLeague(student.league, student.subLeague)))
+      })
+  }
 
 }

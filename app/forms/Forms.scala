@@ -71,7 +71,7 @@ object Forms {
         "country" -> nonEmptyText,
         "league" -> nonEmptyText,
         "subLeague" -> nonEmptyText,
-        "event" -> nonEmptyText,
+        "event" -> optional(nonEmptyText),
         "last_upate_time" -> optional(sqlTimestamp("dd-MM-yyyy")),
         "updateBy" -> optional(longNumber)
 

@@ -70,6 +70,16 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     db.run(studentTable.filter(_.name === name).result.headOption)
   }
 
+  def getStudentById(id: Long): Future[Option[Student]] = {
+    db.run(studentTable.filter(_.id === id).result.headOption)
+  }
+
+  def updateStudentById(id: Long, user: User, student: Student): Future[Unit] = {
+    //TODO //event cannot be empty string
+    val studentCopy = student.copy(id = Some(id), event = Some(""), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())), updateBy = user.id)
+    db.run(studentTable.filter(_.id === id).update(studentCopy)).map{_ =>}
+  }
+
   def deleteStudentByName(name: String): Future[Unit] = {
     db.run(studentTable.filter(_.name === name).delete).map { _ => () }
   }
@@ -135,7 +145,8 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       totalTeamSize <- Future.successful(teamSize(totalStudents))
       totalStudentSize <- Future.successful(totalStudents.size)
       students <- studentsPerLeague
-    } yield StudentsPerLeague(leagueInfo, students, students.size,
+      //we want to sort by team name for now
+    } yield StudentsPerLeague(leagueInfo, students.sortBy(_.teamName), students.size,
       getLocalStudentSize(students), getInternationalStudentSize(students),
       teamSize(students), localTeamSize(students), internationalTeamSize(students),
       getRoundedPercentage(students.size, totalStudentSize), getRoundedPercentage(teamSize(students), totalTeamSize))
