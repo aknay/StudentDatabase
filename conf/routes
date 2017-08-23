@@ -52,7 +52,8 @@ POST    /student/uploadcsv           controllers.StudentController.uploadCsv
 GET    /student/upload           controllers.StudentController.upload
 GET    /student/report           controllers.StudentController.report
 GET    /student/studentsperleague           controllers.StudentController.studentsPerLeague
-
+GET    /student/view             controllers.StudentController.view(combinedLeagueName: String ?= "all")
+POST    /student/submitleagueform     controllers.StudentController.submitLeagueForm
 
 
 # Map static resources from the /public folder to the /assets URL path

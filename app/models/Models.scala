@@ -54,6 +54,13 @@ case class StudentWithStatus(
 
 case class LeagueInfo(league: String, subLeague: String)
 
+object LeagueInfo{
+ def unapply(x: String): Option[LeagueInfo] = {
+    val a = x.split(",")
+    if (a.size == 2) Some(LeagueInfo(a{0}, a{1})) else None
+  }
+}
+
 case class StudentsPerLeague(leagueInfo: LeagueInfo,
                              students: Seq[Student],
                              studentSize: Int,

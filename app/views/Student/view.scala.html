@@ -1,0 +1,113 @@
+@(user: Option[User], form1: Option[Form[(String)]] ,dropDownList: Seq[(String, String)], studentsPerLeagueList: Seq[StudentsPerLeague])(implicit messages: Messages, flash: Flash)
+@import helper._
+@import b3.vertical.fieldConstructor
+@main("Login User") {
+
+@Template.navbar(user)
+
+
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+
+        <h3>View Student</h3>
+
+        @flash.get("error").map { message =>
+        <p class="bg-danger"> @message</p>
+        }
+
+        @b3.form(routes.StudentController.submitLeagueForm) {
+        @b3.select( form1.get("combinedLeagueName"), options = dropDownList, '_label -> "Select", '_default -> "Select an option" )
+        @b3.submit('class -> "btn btn-default"){ View }
+        }
+
+    </div>
+</div>
+
+
+
+
+
+<div class="row">
+    <div class="col-md-1"> </div>
+    <div class="col-md-10">
+
+        <h3>Student Per League</h3>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Team Name</th>
+                <th>Institution</th>
+                <th>Country</th>
+                <th>League</th>
+                <th>League (Sub-Category)</th>
+            </tr>
+            </thead>
+            <tbody>
+            @for(studentsPerLeague <- studentsPerLeagueList){
+            @for(student <- studentsPerLeague.students){
+            <tr>
+                <td>@student.name</td>
+                <td>@student.teamName</td>
+                <td>@student.institution</td>
+                <td>@student.country</td>
+                <td>@student.league</td>
+                <td>@student.subLeague</td>
+            </tr>
+            }
+            }
+            </tbody>
+        </table>
+
+
+    </div>
+    <div class="col-md-1"> </div>
+</div>
+
+<div class="row">
+    <div class="col-md-1"> </div>
+    <div class="col-md-10">
+
+        <h3>Student Per League</h3>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>League</th>
+                <th>League (Sub-Category)</th>
+                <th>Number of Team</th>
+                <th>Number of Local Team</th>
+                <th>Number of International Team</th>
+                <th>Number Of Student</th>
+                <th>Number Of Local Student</th>
+                <th>Number Of International Student</th>
+                <th>Team Distribution</th>
+                <th>Student Distribution</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            @for(studentsPerLeague <- studentsPerLeagueList){
+            <tr>
+                <td>@studentsPerLeague.leagueInfo.league</td>
+                <td>@studentsPerLeague.leagueInfo.subLeague</td>
+                <td>@studentsPerLeague.teamSize</td>
+                <td>@studentsPerLeague.localTeamSize</td>
+                <td>@studentsPerLeague.internationalTeamSize</td>
+                <td>@studentsPerLeague.students.size</td>
+                <td>@studentsPerLeague.numberOfLocalStudent</td>
+                <td>@studentsPerLeague.numberOfInternationalStudent</td>
+                <td>@studentsPerLeague.teamDistribution</td>
+                <td>@studentsPerLeague.studentDistribution</td>
+            </tr>
+            }
+            </tbody>
+        </table>
+        <div class="well"><a href="@routes.StudentController.menu"> Back To Student Menu</a> </div>
+    </div>
+    <div class="col-md-1"> </div>
+</div>
+
+
+}

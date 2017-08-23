@@ -166,4 +166,45 @@ class StudentController @Inject()(components: ControllerComponents,
     Future.successful(Ok(views.html.Student.add_student_with_table(user, studentListWithStatus)))
   }
 
+  private def combineLeagueAndSubLeague(league: String, subLeague: String): String = {
+    league + "," + subLeague
+  }
+
+  def view(combinedLeagueName: String) = SecuredAction.async { implicit request =>
+    val user = Some(request.identity)
+    val totalNumberOfCombinedLeague: Future[Seq[(String, String)]] = studentDao.getLeagueList.map {
+      a => a.map(b => (combineLeagueAndSubLeague(b.league, b.subLeague), combineLeagueAndSubLeague(b.league, b.subLeague)))
+    }
+
+    val submittedLeagueInfo: Option[LeagueInfo] = LeagueInfo.unapply(combinedLeagueName)
+    if (submittedLeagueInfo.isEmpty) {
+      println("we have empty")
+      for {
+        t <- totalNumberOfCombinedLeague
+      } yield Ok(views.html.Student.view(user, Some(Forms.leagueForm), t, Seq()))
+    }
+    else {
+      for {
+        studentsPerLeague <- studentDao.getStudentsPerLeague(submittedLeagueInfo.get)
+        g <- totalNumberOfCombinedLeague
+      } yield Ok(views.html.Student.view(user, Some(Forms.leagueForm), g, Seq(studentsPerLeague)))
+    }
+  }
+
+  def submitLeagueForm = SecuredAction.async { implicit request =>
+    val user = Some(request.identity)
+    val leagueForm = Forms.leagueForm.bindFromRequest()
+    leagueForm.fold(
+      hasErrors = { form =>
+        println("we are having error, try to check form data is matched with html")
+        println(form.data)
+        Future.successful(Redirect(routes.HomeController.index()))
+      },
+      success = {
+        successfulLeagueForm =>
+            Future.successful(Redirect(routes.StudentController.view(successfulLeagueForm)))
+      })
+  }
+
+
 }
