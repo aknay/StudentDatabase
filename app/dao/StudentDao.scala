@@ -53,15 +53,16 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
 
   def getUserTable: Future[Seq[User]] = db.run(userTable.result)
 
-  def insertByUser(student: Student, id: Long): Future[Boolean] = {
-    getStudentByName(student.name).map {
-      case Some(s) => false
+  def insertByUserId(student: Student, userId: Long): Future[Boolean] = {
+    getStudentByName(student.name).flatMap {
+      case Some(_) => Future.successful(false)
       case None =>
-        db.run(studentTable += student.copy(updateBy = Some(id), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date()))))
-        true
+        for {
+          _ <- db.run(studentTable += student.copy(updateBy = Some(userId), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date()))))
+        } yield true
     }
   }
-
+  
   def getAllStudents(): Future[Seq[Student]] = {
     db.run(studentTable.result)
   }

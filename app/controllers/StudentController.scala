@@ -13,8 +13,10 @@ import play.api.mvc.{AbstractController, ControllerComponents, Flash}
 import utils.Silhouette.{AuthController, MyEnv}
 import utils.Utils
 
+import scala.collection.immutable
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 /**
   * Created by aknay on 5/12/2016.
@@ -46,7 +48,7 @@ class StudentController @Inject()(components: ControllerComponents,
       },
       success = {
         newAlbum =>
-          studentDao.insertByUser(newAlbum, request.identity.id.get).map {
+          studentDao.insertByUserId(newAlbum, request.identity.id.get).map {
             case true => Redirect(routes.StudentController.add()) flashing (
               "success" -> Messages("student.added.success"))
 
@@ -109,60 +111,51 @@ class StudentController @Inject()(components: ControllerComponents,
 
   }
 
+  val country = "Country"
+  val teamName = "Team Name"
+  val institution = "Institution"
+  val league = "League"
+  val subLeague = "League (Sub-Category)"
+  val studentName = "Student Name"
+
+  private def isFollowingFormat(map: Map[String, String]): Boolean = {
+    map.get(country).isDefined &&
+      map.get(teamName).isDefined &&
+      map.get(institution).isDefined &&
+      map.get(league).isDefined &&
+      map.get(subLeague).isDefined &&
+      map.get(studentName).isDefined
+  }
+
+  private def getStudentFromMap(userId: Long, map: Map[String, String]): Student = {
+    //TODO event is still empty
+    Student(Some(1), map(studentName), map(studentName), map(institution), map(country), map(league),
+      map(subLeague), Some(""), Some(Utils.getTimeStampFromDate(new Date())), updateBy = Some(userId))
+  }
+
   def uploadCsv = SecuredAction.async(parse.multipartFormData) { implicit request =>
     val user = Some(request.identity)
-    val studentList = ListBuffer[Student]()
-    val studentListWithStatus = ListBuffer[StudentWithStatus]()
-    request.body.file("csv").map { csv =>
+    val students: Future[Seq[StudentWithStatus]] = request.body.file("csv").map { csv =>
       val reader = CSVReader.open(csv.ref.file)
 
-      val v = reader.allWithHeaders()
+      val v : Seq[Map[String, String]] = reader.allWithHeaders()
 
-      val country = "Country"
-      val teamName = "Team Name"
-      val institution = "Institution"
-      val league = "League"
-      val subLeague = "League (Sub-Category)"
-      val studentName = "Student Name"
+      val userId = user.get.id.get
+      val students: Seq[Student] = v.filter(a => isFollowingFormat(a))
+        .map(b => getStudentFromMap(userId, b))
 
-      for (a <- v) {
-        val c = a.get(country)
-        val t = a.get(teamName)
-        val i = a.get(institution)
-        val l = a.get(league)
-        val sl = a.get(subLeague)
-        val sn = a.get(studentName)
-
-
-        if (c.isDefined && t.isDefined && i.isDefined && l.isDefined && sl.isDefined && sn.isDefined) {
-          println(c.get)
-          val student = Student(name = sn.get, teamName = t.get, institution = i.get,
-            country = c.get, league = l.get, subLeague = sl.get, id = Some(1), event = Some(""), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())), updateBy = Some(1))
-          studentList += student
-        }
-        else {
-          println("we got problem")
-        }
-
+      val studentWithStatusList: Seq[Future[StudentWithStatus]] = students.map {
+        s =>
+          studentDao.insertByUserId(s, userId)
+            .map(a => StudentWithStatus(s.name, s.teamName, s.institution, s.country, s.league, s.subLeague, isExisted = !a))
       }
+      Future.sequence(studentWithStatusList)
+    }.get
 
-      for (student <- studentList) {
+    for {
+      s <- students
+    } yield Ok(views.html.Student.add_student_with_table(user, s))
 
-        val status: Future[Boolean] = for {
-          a <- studentDao.insertByUser(student, user.get.id.get)
-        } yield a
-
-        status.map {
-          case true => studentListWithStatus += StudentWithStatus(student.name, student.teamName, student.institution, student.country, student.league, student.subLeague, isExisted = false)
-          case false => studentListWithStatus += StudentWithStatus(student.name, student.teamName, student.institution, student.country, student.league, student.subLeague, isExisted = true)
-        }
-      }
-
-      studentListWithStatus.foreach(println)
-
-    }
-
-    Future.successful(Ok(views.html.Student.add_student_with_table(user, studentListWithStatus)))
   }
 
   private def combineLeagueAndSubLeague(league: String, subLeague: String): String = {

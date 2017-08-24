@@ -79,7 +79,7 @@ class StudentDaoTest extends Specification with ScalaFutures {
 
     studentDao.deleteStudentByName(getStudent.name).futureValue
 
-    val isAdded = studentDao.insertByUser(getStudent, user.get.id.get).futureValue
+    val isAdded = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
     isAdded === true
     val studentList = studentDao.getAllStudents().futureValue
     studentList.head.name === getStudent.name
@@ -98,10 +98,10 @@ class StudentDaoTest extends Specification with ScalaFutures {
 
     studentDao.deleteStudentByName(getStudent.name).futureValue
 
-    val isAdded = studentDao.insertByUser(getStudent, user.get.id.get).futureValue
+    val isAdded = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
     isAdded === true
 
-    val isAddedAgain = studentDao.insertByUser(getStudent, user.get.id.get).futureValue
+    val isAddedAgain = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
     isAddedAgain === false
 
     //clean up
@@ -115,12 +115,12 @@ class StudentDaoTest extends Specification with ScalaFutures {
     userDao.insertUser(getNormalUser).futureValue
 
     val user = userDao.getUserByEmail(getNormalUser.email).futureValue
-    studentDao.insertByUser(student1, user.get.id.get).futureValue
-    studentDao.insertByUser(student2, user.get.id.get).futureValue
-    studentDao.insertByUser(student3, user.get.id.get).futureValue
-    studentDao.insertByUser(student4, user.get.id.get).futureValue
-    studentDao.insertByUser(student5, user.get.id.get).futureValue
-    studentDao.insertByUser(student6, user.get.id.get).futureValue
+    studentDao.insertByUserId(student1, user.get.id.get).futureValue
+    studentDao.insertByUserId(student2, user.get.id.get).futureValue
+    studentDao.insertByUserId(student3, user.get.id.get).futureValue
+    studentDao.insertByUserId(student4, user.get.id.get).futureValue
+    studentDao.insertByUserId(student5, user.get.id.get).futureValue
+    studentDao.insertByUserId(student6, user.get.id.get).futureValue
 
     val leagueList = studentDao.getLeagueList.futureValue
     leagueList.size === 5
@@ -137,12 +137,12 @@ class StudentDaoTest extends Specification with ScalaFutures {
     userDao.insertUser(getNormalUser).futureValue
 
     val user = userDao.getUserByEmail(getNormalUser.email).futureValue
-    studentDao.insertByUser(student1, user.get.id.get).futureValue
-    studentDao.insertByUser(student2, user.get.id.get).futureValue
-    studentDao.insertByUser(student3, user.get.id.get).futureValue
-    studentDao.insertByUser(student4, user.get.id.get).futureValue
-    studentDao.insertByUser(student5, user.get.id.get).futureValue
-    studentDao.insertByUser(student6, user.get.id.get).futureValue
+    studentDao.insertByUserId(student1, user.get.id.get).futureValue
+    studentDao.insertByUserId(student2, user.get.id.get).futureValue
+    studentDao.insertByUserId(student3, user.get.id.get).futureValue
+    studentDao.insertByUserId(student4, user.get.id.get).futureValue
+    studentDao.insertByUserId(student5, user.get.id.get).futureValue
+    studentDao.insertByUserId(student6, user.get.id.get).futureValue
 
     val leagueList = studentDao.getLeagueList.futureValue
     leagueList.size === 5
