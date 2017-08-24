@@ -77,7 +77,7 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
 
   def updateStudentById(id: Long, user: User, student: Student): Future[Unit] = {
     //TODO //event cannot be empty string
-    val studentCopy = student.copy(id = Some(id), event = Some(""), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())), updateBy = user.id)
+    val studentCopy = student.copy(id = Some(id), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())), updateBy = user.id)
     db.run(studentTable.filter(_.id === id).update(studentCopy)).map{_ =>}
   }
 

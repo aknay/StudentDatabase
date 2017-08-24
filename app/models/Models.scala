@@ -37,7 +37,7 @@ case class Student(id: Option[Long],
                    country: String,
                    league: String,
                    subLeague: String,
-                   event: Option[String],
+                   event: String,
                    lastUpdateTime: Option[Timestamp],
                    updateBy: Option[Long]
                   )
@@ -49,6 +49,7 @@ case class StudentWithStatus(
                               country: String,
                               league: String,
                               subLeague: String,
+                              event: String,
                               isExisted: Boolean
                             )
 

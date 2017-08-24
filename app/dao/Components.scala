@@ -99,7 +99,7 @@ trait StudentTableComponent extends UserTableComponent {
 
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
-    def * = (id.?, name, teamName, institution, country, league, subLeague, event.?, lastUpdateTime.?, updateBy.?) <> (Student.tupled, Student.unapply)
+    def * = (id.?, name, teamName, institution, country, league, subLeague, event, lastUpdateTime.?, updateBy.?) <> (Student.tupled, Student.unapply)
 
   }
 

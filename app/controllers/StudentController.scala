@@ -114,6 +114,7 @@ class StudentController @Inject()(components: ControllerComponents,
   val league = "League"
   val subLeague = "League (Sub-Category)"
   val studentName = "Student Name"
+  val eventName = "Event"
 
   private def isFollowingFormat(map: Map[String, String]): Boolean = {
     map.get(country).isDefined &&
@@ -121,13 +122,13 @@ class StudentController @Inject()(components: ControllerComponents,
       map.get(institution).isDefined &&
       map.get(league).isDefined &&
       map.get(subLeague).isDefined &&
-      map.get(studentName).isDefined
+      map.get(studentName).isDefined &&
+      map.get(eventName).isDefined
   }
 
   private def getStudentFromMap(userId: Long, map: Map[String, String]): Student = {
-    //TODO event is still empty
     Student(Some(1), map(studentName), map(teamName), map(institution), map(country), map(league),
-      map(subLeague), Some(""), Some(Utils.getTimeStampFromDate(new Date())), updateBy = Some(userId))
+      map(subLeague), map(eventName), Some(Utils.getTimeStampFromDate(new Date())), updateBy = Some(userId))
   }
 
   def uploadCsv = SecuredAction.async(parse.multipartFormData) { implicit request =>
@@ -144,7 +145,7 @@ class StudentController @Inject()(components: ControllerComponents,
       val studentWithStatusList: Seq[Future[StudentWithStatus]] = students.map {
         s =>
           studentDao.insertByUserId(s, userId)
-            .map(a => StudentWithStatus(s.name, s.teamName, s.institution, s.country, s.league, s.subLeague, isExisted = !a))
+            .map(a => StudentWithStatus(s.name, s.teamName, s.institution, s.country, s.league, s.subLeague, s.event, isExisted = !a))
       }
       Future.sequence(studentWithStatusList)
     }.get

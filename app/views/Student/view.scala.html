@@ -42,6 +42,7 @@
                 <th>Country</th>
                 <th>League</th>
                 <th>League (Sub-Category)</th>
+                <th>Event</th>
             </tr>
             </thead>
             <tbody>
@@ -54,6 +55,7 @@
                 <td>@student.country</td>
                 <td>@student.league</td>
                 <td>@student.subLeague</td>
+                <td>@student.event</td>
                 <td><a href="@routes.StudentController.update(student.id.get)">edit</a></td>
                 <td><a href="@routes.StudentController.delete(student.id.get)">delete</a></td>
             </tr>
