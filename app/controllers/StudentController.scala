@@ -13,10 +13,7 @@ import play.api.mvc.{AbstractController, ControllerComponents, Flash}
 import utils.Silhouette.{AuthController, MyEnv}
 import utils.Utils
 
-import scala.collection.immutable
-import scala.collection.mutable.ListBuffer
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Created by aknay on 5/12/2016.
@@ -129,7 +126,7 @@ class StudentController @Inject()(components: ControllerComponents,
 
   private def getStudentFromMap(userId: Long, map: Map[String, String]): Student = {
     //TODO event is still empty
-    Student(Some(1), map(studentName), map(studentName), map(institution), map(country), map(league),
+    Student(Some(1), map(studentName), map(teamName), map(institution), map(country), map(league),
       map(subLeague), Some(""), Some(Utils.getTimeStampFromDate(new Date())), updateBy = Some(userId))
   }
 
@@ -138,7 +135,7 @@ class StudentController @Inject()(components: ControllerComponents,
     val students: Future[Seq[StudentWithStatus]] = request.body.file("csv").map { csv =>
       val reader = CSVReader.open(csv.ref.file)
 
-      val v : Seq[Map[String, String]] = reader.allWithHeaders()
+      val v: Seq[Map[String, String]] = reader.allWithHeaders()
 
       val userId = user.get.id.get
       val students: Seq[Student] = v.filter(a => isFollowingFormat(a))
@@ -224,4 +221,10 @@ class StudentController @Inject()(components: ControllerComponents,
       })
   }
 
+  def delete(id: Long) = SecuredAction.async { implicit request =>
+    for {
+      student <- studentDao.getStudentById(id) //we want to know which league student belonged to
+      _ <- studentDao.deleteStudentById(id)
+    } yield Redirect(routes.StudentController.view(combineLeagueAndSubLeague(student.get.league, student.get.subLeague)))
+  }
 }

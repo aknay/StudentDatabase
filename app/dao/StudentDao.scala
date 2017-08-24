@@ -85,6 +85,10 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     db.run(studentTable.filter(_.name === name).delete).map { _ => () }
   }
 
+  def deleteStudentById(id: Long): Future[Unit] = {
+    db.run(studentTable.filter(_.id === id).delete).map {_ => ()}
+  }
+
   def getLeagueList: Future[Seq[LeagueInfo]] = {
     for {
       l <- getAllStudents()

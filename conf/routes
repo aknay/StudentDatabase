@@ -3,6 +3,8 @@
 # ~~~~
 
 # An example controller showing a sample home page
+
+
 GET     /                           controllers.HomeController.index
 GET     /add                        controllers.AlbumController.add
 POST    /save                       controllers.AlbumController.save
@@ -56,7 +58,7 @@ GET    /student/view             controllers.StudentController.view(combinedLeag
 POST    /student/submitleagueform     controllers.StudentController.submitLeagueForm
 GET    /student/update     controllers.StudentController.update(id: Long)
 POST    /student/submitupdate     controllers.StudentController.submitUpdate(id: Long)
-
+GET    /student/delete     controllers.StudentController.delete(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET		/assets/*file			controllers.Assets.at(path="/public", file)

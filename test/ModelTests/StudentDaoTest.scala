@@ -81,58 +81,58 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
   }
 
   "should not add user when user is existed" in {
-        userDao.insertUser(getNormalUser).futureValue
-        val user = userDao.getUserByEmail(getNormalUser.email).futureValue
+    userDao.insertUser(getNormalUser).futureValue
+    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
 
-        val isAdded = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
-        isAdded === true
+    val isAdded = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
+    isAdded mustBe true
 
-        val isAddedAgain = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
-        isAddedAgain === false
+    val isAddedAgain = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
+    isAddedAgain mustBe false
   }
 
   "should get unique league list" in {
-        userDao.insertUser(getNormalUser).futureValue
+    userDao.insertUser(getNormalUser).futureValue
 
-        val user = userDao.getUserByEmail(getNormalUser.email).futureValue
-        studentDao.insertByUserId(student1, user.get.id.get).futureValue
-        studentDao.insertByUserId(student2, user.get.id.get).futureValue
-        studentDao.insertByUserId(student3, user.get.id.get).futureValue
-        studentDao.insertByUserId(student4, user.get.id.get).futureValue
-        studentDao.insertByUserId(student5, user.get.id.get).futureValue
-        studentDao.insertByUserId(student6, user.get.id.get).futureValue
+    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
+    studentDao.insertByUserId(student1, user.get.id.get).futureValue
+    studentDao.insertByUserId(student2, user.get.id.get).futureValue
+    studentDao.insertByUserId(student3, user.get.id.get).futureValue
+    studentDao.insertByUserId(student4, user.get.id.get).futureValue
+    studentDao.insertByUserId(student5, user.get.id.get).futureValue
+    studentDao.insertByUserId(student6, user.get.id.get).futureValue
 
-        val leagueList = studentDao.getLeagueList.futureValue
-        leagueList.size === 5
-        println(leagueList)
+    val leagueList = studentDao.getLeagueList.futureValue
+    leagueList.size mustBe 5
+    println(leagueList)
 
-        val allStudentsToDelete = studentDao.getAllStudents().futureValue
-        allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
+    val allStudentsToDelete = studentDao.getAllStudents().futureValue
+    allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
   }
 
 
-    "should get students from each league" in  {
-      userDao.insertUser(getNormalUser).futureValue
+  "should get students from each league" in {
+    userDao.insertUser(getNormalUser).futureValue
 
-      val user = userDao.getUserByEmail(getNormalUser.email).futureValue
-      studentDao.insertByUserId(student1, user.get.id.get).futureValue
-      studentDao.insertByUserId(student2, user.get.id.get).futureValue
-      studentDao.insertByUserId(student3, user.get.id.get).futureValue
-      studentDao.insertByUserId(student4, user.get.id.get).futureValue
-      studentDao.insertByUserId(student5, user.get.id.get).futureValue
-      studentDao.insertByUserId(student6, user.get.id.get).futureValue
+    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
+    studentDao.insertByUserId(student1, user.get.id.get).futureValue
+    studentDao.insertByUserId(student2, user.get.id.get).futureValue
+    studentDao.insertByUserId(student3, user.get.id.get).futureValue
+    studentDao.insertByUserId(student4, user.get.id.get).futureValue
+    studentDao.insertByUserId(student5, user.get.id.get).futureValue
+    studentDao.insertByUserId(student6, user.get.id.get).futureValue
 
-      val leagueList = studentDao.getLeagueList.futureValue
-      leagueList.size === 5
+    val leagueList = studentDao.getLeagueList.futureValue
+    leagueList.size mustBe 5
 
-      val studentsFromLeagueOne = studentDao.getStudentsPerLeague(leagueOne).futureValue
-      studentsFromLeagueOne.students.size === 2
+    val studentsFromLeagueOne = studentDao.getStudentsPerLeague(leagueOne).futureValue
+    studentsFromLeagueOne.students.size mustBe 2
 
-      val studentsFromLeagueTwo = studentDao.getStudentsPerLeague(leagueTwo).futureValue
-      studentsFromLeagueTwo.students.size === 1
+    val studentsFromLeagueTwo = studentDao.getStudentsPerLeague(leagueTwo).futureValue
+    studentsFromLeagueTwo.students.size mustBe 1
 
-      val allStudentsToDelete = studentDao.getAllStudents().futureValue
-      allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
-    }
+    val allStudentsToDelete = studentDao.getAllStudents().futureValue
+    allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
+  }
 
 }
