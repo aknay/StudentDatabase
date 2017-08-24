@@ -62,7 +62,7 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
         } yield true
     }
   }
-  
+
   def getAllStudents(): Future[Seq[Student]] = {
     db.run(studentTable.result)
   }

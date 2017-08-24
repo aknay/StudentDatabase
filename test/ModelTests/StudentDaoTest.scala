@@ -7,14 +7,13 @@ package ModelTests
 import java.util.Date
 
 import dao.{StudentDao, UserDao}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import utils.Utils
-//import org.joda.time.DateTime
 import org.scalatest.concurrent.ScalaFutures
-import org.specs2.mutable.Specification
-import play.api.Application
-import play.api.test.WithApplication
 
-class StudentDaoTest extends Specification with ScalaFutures {
+class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPerSuite with ScalaFutures {
 
   import models._
 
@@ -26,27 +25,27 @@ class StudentDaoTest extends Specification with ScalaFutures {
 
   val student1 = Student(name = "student1", teamName = "league", institution = "some institution",
     country = "", league = leagueOne.league, subLeague = leagueOne.subLeague,
-    event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+    event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
   val student2 = Student(name = "student2", teamName = "league", institution = "some institution",
     country = "", league = leagueOne.league, subLeague = leagueOne.subLeague,
-    event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+    event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
   val student3 = Student(name = "student3", teamName = "league", institution = "some institution",
     country = "", league = leagueTwo.league, subLeague = leagueTwo.subLeague,
-    event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+    event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
   val student4 = Student(name = "student4", teamName = "league", institution = "some institution",
     country = "some country", league = leagueThree.league, subLeague = leagueThree.subLeague,
-    event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+    event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
   val student5 = Student(name = "student5", teamName = "league", institution = "some institution",
     country = "some country", league = leagueFour.league, subLeague = leagueFour.subLeague,
-    event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+    event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
   val student6 = Student(name = "student6", teamName = "league", institution = "some institution",
     country = "some country", league = leagueFive.league, subLeague = leagueFive.subLeague,
-    event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+    event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
   def getNormalUser: User = {
     User(Some(1), "user@user.com", "password", "username", Role.NormalUser, activated = true)
@@ -55,106 +54,85 @@ class StudentDaoTest extends Specification with ScalaFutures {
   def getStudent: Student = {
     Student(name = "batman", teamName = "league", institution = "some institution",
       country = "some country", league = "some league", subLeague = "some subleague",
-      event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+      event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
   }
 
-
-  def userDao(implicit app: Application) = {
-    val app2UserDAO = Application.instanceCache[UserDao]
-    app2UserDAO(app)
-  }
-
-  def studentDao(implicit app: Application) = {
-    val app2UserDAO = Application.instanceCache[StudentDao]
-    app2UserDAO(app)
-  }
-
-  "just create a table" in new WithApplication() {
-    studentDao.createTableIfNotExisted
-  }
-
-  "should add user" in new WithApplication() {
-    val result = userDao.insertUser(getNormalUser).futureValue
-    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
-
+  override def afterEach(): Unit = {
+    userDao.deleteUserByEmail(getNormalUser.email).futureValue
     studentDao.deleteStudentByName(getStudent.name).futureValue
+  }
 
+  override def beforeEach(): Unit = {
+    userDao.deleteUserByEmail(getNormalUser.email).futureValue
+    studentDao.deleteStudentByName(getStudent.name).futureValue
+  }
+
+  val userDao: UserDao = app.injector.instanceOf(classOf[UserDao])
+  val studentDao: StudentDao = app.injector.instanceOf(classOf[StudentDao])
+
+  "should add student" in {
+    val isUserInserted = userDao.insertUser(getNormalUser).futureValue
+    isUserInserted mustBe true
+    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
     val isAdded = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
     isAdded === true
     val studentList = studentDao.getAllStudents().futureValue
     studentList.head.name === getStudent.name
-
-    //clean up
-    userDao.deleteUserByEmail(getNormalUser.email).futureValue
-    studentDao.deleteStudentByName(getStudent.name).futureValue
   }
 
-  "should not add user when user is existed" in new WithApplication() {
+  "should not add user when user is existed" in {
+        userDao.insertUser(getNormalUser).futureValue
+        val user = userDao.getUserByEmail(getNormalUser.email).futureValue
 
-    val result = userDao.insertUser(getNormalUser).futureValue
-    result === true
-    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
-    user.isDefined === true
+        val isAdded = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
+        isAdded === true
 
-    studentDao.deleteStudentByName(getStudent.name).futureValue
-
-    val isAdded = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
-    isAdded === true
-
-    val isAddedAgain = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
-    isAddedAgain === false
-
-    //clean up
-    userDao.deleteUserByEmail(getNormalUser.email).futureValue
-    studentDao.deleteStudentByName(getStudent.name).futureValue
+        val isAddedAgain = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
+        isAddedAgain === false
   }
 
-  "should get unique league list" in new WithApplication() {
-    val allStudents = studentDao.getAllStudents().futureValue
-    allStudents.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
-    userDao.insertUser(getNormalUser).futureValue
+  "should get unique league list" in {
+        userDao.insertUser(getNormalUser).futureValue
 
-    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
-    studentDao.insertByUserId(student1, user.get.id.get).futureValue
-    studentDao.insertByUserId(student2, user.get.id.get).futureValue
-    studentDao.insertByUserId(student3, user.get.id.get).futureValue
-    studentDao.insertByUserId(student4, user.get.id.get).futureValue
-    studentDao.insertByUserId(student5, user.get.id.get).futureValue
-    studentDao.insertByUserId(student6, user.get.id.get).futureValue
+        val user = userDao.getUserByEmail(getNormalUser.email).futureValue
+        studentDao.insertByUserId(student1, user.get.id.get).futureValue
+        studentDao.insertByUserId(student2, user.get.id.get).futureValue
+        studentDao.insertByUserId(student3, user.get.id.get).futureValue
+        studentDao.insertByUserId(student4, user.get.id.get).futureValue
+        studentDao.insertByUserId(student5, user.get.id.get).futureValue
+        studentDao.insertByUserId(student6, user.get.id.get).futureValue
 
-    val leagueList = studentDao.getLeagueList.futureValue
-    leagueList.size === 5
-    println(leagueList)
+        val leagueList = studentDao.getLeagueList.futureValue
+        leagueList.size === 5
+        println(leagueList)
 
-    val allStudentsToDelete = studentDao.getAllStudents().futureValue
-    allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
-
+        val allStudentsToDelete = studentDao.getAllStudents().futureValue
+        allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
   }
 
-  "should get students from each league" in new WithApplication() {
-    val allStudents = studentDao.getAllStudents().futureValue
-    allStudents.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
-    userDao.insertUser(getNormalUser).futureValue
 
-    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
-    studentDao.insertByUserId(student1, user.get.id.get).futureValue
-    studentDao.insertByUserId(student2, user.get.id.get).futureValue
-    studentDao.insertByUserId(student3, user.get.id.get).futureValue
-    studentDao.insertByUserId(student4, user.get.id.get).futureValue
-    studentDao.insertByUserId(student5, user.get.id.get).futureValue
-    studentDao.insertByUserId(student6, user.get.id.get).futureValue
+    "should get students from each league" in  {
+      userDao.insertUser(getNormalUser).futureValue
 
-    val leagueList = studentDao.getLeagueList.futureValue
-    leagueList.size === 5
+      val user = userDao.getUserByEmail(getNormalUser.email).futureValue
+      studentDao.insertByUserId(student1, user.get.id.get).futureValue
+      studentDao.insertByUserId(student2, user.get.id.get).futureValue
+      studentDao.insertByUserId(student3, user.get.id.get).futureValue
+      studentDao.insertByUserId(student4, user.get.id.get).futureValue
+      studentDao.insertByUserId(student5, user.get.id.get).futureValue
+      studentDao.insertByUserId(student6, user.get.id.get).futureValue
 
-    val studentsFromLeagueOne = studentDao.getStudentsPerLeague(leagueOne).futureValue
-    studentsFromLeagueOne.students.size === 2
+      val leagueList = studentDao.getLeagueList.futureValue
+      leagueList.size === 5
 
-    val studentsFromLeagueTwo = studentDao.getStudentsPerLeague(leagueTwo).futureValue
-    studentsFromLeagueTwo.students.size === 1
+      val studentsFromLeagueOne = studentDao.getStudentsPerLeague(leagueOne).futureValue
+      studentsFromLeagueOne.students.size === 2
 
-    val allStudentsToDelete = studentDao.getAllStudents().futureValue
-    allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
-  }
+      val studentsFromLeagueTwo = studentDao.getStudentsPerLeague(leagueTwo).futureValue
+      studentsFromLeagueTwo.students.size === 1
+
+      val allStudentsToDelete = studentDao.getAllStudents().futureValue
+      allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
+    }
 
 }

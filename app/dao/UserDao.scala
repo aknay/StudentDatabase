@@ -110,20 +110,17 @@ class UserDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider) 
   private val userInfoTable = TableQuery[UserInfoTable]
 
   def insertUser(user: User): Future[Boolean] = {
-    isUserExisted(user.email).map {
-      case true => {
-        false
-      }
-      case false => {
-        val insertAction = for {
+    isUserExisted(user.email).flatMap {
+      case true => Future.successful(false)
+      case false =>
+       val action =  for {
           userId <- insertUser += user
-          count <- userInfoTable ++= Seq(
-            UserInfo(userId, "EMPTY", "EMPTY")
-          )
+          count <- userInfoTable ++= Seq(UserInfo(userId, "EMPTY", "EMPTY"))
         } yield count
-        db.run(insertAction)
-        true
-      }
+
+        for {
+          _ <- db.run(action)
+        } yield true
     }
   }
 
