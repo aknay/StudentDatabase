@@ -82,3 +82,5 @@ case class TotalSizeInfo(numberOfStudent: Int,
                          numberOfInternationalStudent: Int
                         )
 
+case class CombinedLeagueNameWithEvent(combinedLeagueName: String, event: String)
+

@@ -160,9 +160,9 @@ class StudentController @Inject()(components: ControllerComponents,
     league + "," + subLeague
   }
 
-  def view(combinedLeagueName: String) = SecuredAction.async { implicit request =>
+  def view(event: String, combinedLeagueName: String) = SecuredAction.async { implicit request =>
     val user = Some(request.identity)
-    val totalNumberOfCombinedLeague: Future[Seq[(String, String)]] = studentDao.getLeagueList.map {
+    val totalNumberOfCombinedLeague: Future[Seq[(String, String)]] = studentDao.getLeagueListByEvent(event).map {
       a => a.map(b => (combineLeagueAndSubLeague(b.league, b.subLeague), combineLeagueAndSubLeague(b.league, b.subLeague)))
     }
 
@@ -171,13 +171,13 @@ class StudentController @Inject()(components: ControllerComponents,
       println("we have empty")
       for {
         t <- totalNumberOfCombinedLeague
-      } yield Ok(views.html.Student.view(user, Some(Forms.leagueForm), t, Seq()))
+      } yield Ok(views.html.Student.view(user, Forms.leagueForm, t, Seq(), event))
     }
     else {
       for {
         studentsPerLeague <- studentDao.getStudentsPerLeague(submittedLeagueInfo.get)
         g <- totalNumberOfCombinedLeague
-      } yield Ok(views.html.Student.view(user, Some(Forms.leagueForm), g, Seq(studentsPerLeague)))
+      } yield Ok(views.html.Student.view(user, Forms.leagueForm, g, Seq(studentsPerLeague), event))
     }
   }
 
@@ -192,7 +192,9 @@ class StudentController @Inject()(components: ControllerComponents,
       },
       success = {
         successfulLeagueForm =>
-          Future.successful(Redirect(routes.StudentController.view(successfulLeagueForm)))
+          val event = successfulLeagueForm.event
+          val combinedLeagueName = successfulLeagueForm.combinedLeagueName
+          Future.successful(Redirect(routes.StudentController.view(event = event, combinedLeagueName)))
       })
   }
 
@@ -228,4 +230,36 @@ class StudentController @Inject()(components: ControllerComponents,
       _ <- studentDao.deleteStudentById(id)
     } yield Redirect(routes.StudentController.view(combineLeagueAndSubLeague(student.get.league, student.get.subLeague)))
   }
+
+  def selectEvent = SecuredAction.async { implicit request =>
+    val user = Some(request.identity)
+    for {
+      eventList <- studentDao.getUniqueEventList
+      mapEventList <- Future.successful(eventList.map(e => (e,e)))
+    } yield Ok(views.html.Student.selectevent(user, Forms.eventForm, mapEventList))
+  }
+
+  def submitEvent = SecuredAction.async { implicit request =>
+
+    val user = Some(request.identity)
+    val eventForm = Forms.eventForm.bindFromRequest()
+
+    eventForm.fold(
+      hasErrors = {
+        errorForm =>
+          println("we are having error, try to check form data is matched with html")
+          println(errorForm.data)
+          Future.successful(Ok)
+      },
+      success = { event =>
+        for {
+          _ <- studentDao.getStudentsPerEvent(event)
+        } yield Redirect(routes.StudentController.view(event))
+      })
+
+  }
+
+
+
+
 }

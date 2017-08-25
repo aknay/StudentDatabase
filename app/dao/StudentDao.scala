@@ -96,6 +96,20 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     } yield a.distinct
   }
 
+  def getLeagueListByEvent(event: String): Future[Seq[LeagueInfo]] = {
+    for {
+      students <- getStudentsPerEvent(event)
+      leagueInfo <- Future.successful(students.map { b => LeagueInfo(b.league, b.subLeague) })
+    } yield leagueInfo
+  }
+
+  def getUniqueEventList: Future[Seq[String]] = {
+    for {
+      students <- getAllStudents()
+      event <- Future.successful(students.map { b => b.event })
+    } yield event.distinct
+  }
+
   private def teamSize(students: Seq[Student]): Int = {
     students.map(s => s.teamName).distinct.size
   }
@@ -156,4 +170,12 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       teamSize(students), localTeamSize(students), internationalTeamSize(students),
       getRoundedPercentage(students.size, totalStudentSize), getRoundedPercentage(teamSize(students), totalTeamSize))
   }
+
+  def getStudentsPerEvent(event: String): Future[Seq[Student]] = {
+    for {
+      student <- getAllStudents()
+      studentListPerEvent <- Future.successful(student.filter(s => s.event.compareTo(event) == 0))
+    } yield studentListPerEvent
+  }
+
 }

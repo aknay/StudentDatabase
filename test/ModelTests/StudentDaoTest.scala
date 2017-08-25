@@ -25,27 +25,27 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
 
   val student1 = Student(name = "student1", teamName = "league", institution = "some institution",
     country = "", league = leagueOne.league, subLeague = leagueOne.subLeague,
-    event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+    event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
   val student2 = Student(name = "student2", teamName = "league", institution = "some institution",
     country = "", league = leagueOne.league, subLeague = leagueOne.subLeague,
-    event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+    event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
   val student3 = Student(name = "student3", teamName = "league", institution = "some institution",
     country = "", league = leagueTwo.league, subLeague = leagueTwo.subLeague,
-    event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+    event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
   val student4 = Student(name = "student4", teamName = "league", institution = "some institution",
     country = "some country", league = leagueThree.league, subLeague = leagueThree.subLeague,
-    event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+    event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
   val student5 = Student(name = "student5", teamName = "league", institution = "some institution",
     country = "some country", league = leagueFour.league, subLeague = leagueFour.subLeague,
-    event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+    event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
   val student6 = Student(name = "student6", teamName = "league", institution = "some institution",
     country = "some country", league = leagueFive.league, subLeague = leagueFive.subLeague,
-    event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+    event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
 
   def getNormalUser: User = {
     User(Some(1), "user@user.com", "password", "username", Role.NormalUser, activated = true)
@@ -54,17 +54,23 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
   def getStudent: Student = {
     Student(name = "batman", teamName = "league", institution = "some institution",
       country = "some country", league = "some league", subLeague = "some subleague",
-      event = Some("some event"), id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
+      event = "some event", id = Some(1), updateBy = Some(1), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())))
   }
 
   override def afterEach(): Unit = {
     userDao.deleteUserByEmail(getNormalUser.email).futureValue
     studentDao.deleteStudentByName(getStudent.name).futureValue
+
+    val allStudentsToDelete = studentDao.getAllStudents().futureValue
+    allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
   }
 
   override def beforeEach(): Unit = {
     userDao.deleteUserByEmail(getNormalUser.email).futureValue
     studentDao.deleteStudentByName(getStudent.name).futureValue
+
+    val allStudentsToDelete = studentDao.getAllStudents().futureValue
+    allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
   }
 
   val userDao: UserDao = app.injector.instanceOf(classOf[UserDao])
@@ -93,8 +99,8 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
 
   "should get unique league list" in {
     userDao.insertUser(getNormalUser).futureValue
-
     val user = userDao.getUserByEmail(getNormalUser.email).futureValue
+
     studentDao.insertByUserId(student1, user.get.id.get).futureValue
     studentDao.insertByUserId(student2, user.get.id.get).futureValue
     studentDao.insertByUserId(student3, user.get.id.get).futureValue
@@ -104,10 +110,6 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
 
     val leagueList = studentDao.getLeagueList.futureValue
     leagueList.size mustBe 5
-    println(leagueList)
-
-    val allStudentsToDelete = studentDao.getAllStudents().futureValue
-    allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
   }
 
 
@@ -134,5 +136,47 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
     val allStudentsToDelete = studentDao.getAllStudents().futureValue
     allStudentsToDelete.foreach(student => studentDao.deleteStudentByName(student.name).futureValue)
   }
+
+  "should get unique event list" in {
+    userDao.insertUser(getNormalUser).futureValue
+
+    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
+
+
+    studentDao.insertByUserId(student1.copy(event = "abc"), user.get.id.get).futureValue
+    studentDao.insertByUserId(student2.copy(event = "abc"), user.get.id.get).futureValue
+    studentDao.insertByUserId(student3.copy(event = "def"), user.get.id.get).futureValue
+    studentDao.insertByUserId(student4.copy(event = "def"), user.get.id.get).futureValue
+    studentDao.insertByUserId(student5.copy(event = "ghi"), user.get.id.get).futureValue
+    studentDao.insertByUserId(student6.copy(event = "xyz"), user.get.id.get).futureValue
+
+    val eventList = studentDao.getUniqueEventList.futureValue
+    eventList.size mustBe 4
+  }
+
+  "should get student list from unique event" in {
+    userDao.insertUser(getNormalUser).futureValue
+
+    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
+
+
+    studentDao.insertByUserId(student1.copy(event = "abc"), user.get.id.get).futureValue
+    studentDao.insertByUserId(student2.copy(event = "abc"), user.get.id.get).futureValue
+    studentDao.insertByUserId(student3.copy(event = "def"), user.get.id.get).futureValue
+    studentDao.insertByUserId(student4.copy(event = "def"), user.get.id.get).futureValue
+    studentDao.insertByUserId(student5.copy(event = "ghi"), user.get.id.get).futureValue
+    studentDao.insertByUserId(student6.copy(event = "xyz"), user.get.id.get).futureValue
+
+    val eventList = studentDao.getUniqueEventList.futureValue
+
+    val studentList = studentDao.getStudentsPerEvent(eventList.head).futureValue
+    studentList.head.event mustBe "abc"
+    studentList.size mustBe 2
+
+    val lastStudentList = studentDao.getStudentsPerEvent(eventList.last).futureValue
+    lastStudentList.head.event mustBe "xyz"
+    lastStudentList.size mustBe 1
+  }
+
 
 }

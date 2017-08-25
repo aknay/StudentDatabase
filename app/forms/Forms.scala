@@ -83,5 +83,10 @@ object Forms {
       "csv" -> nonEmptyText
     ))
 
-  val leagueForm = Form(single("combinedLeagueName" -> nonEmptyText))
+  val leagueForm = Form(
+    mapping(
+      "combinedLeagueName" -> nonEmptyText,
+      "event" -> nonEmptyText,
+    )(CombinedLeagueNameWithEvent.apply)(CombinedLeagueNameWithEvent.unapply)
+  )
 }
