@@ -54,7 +54,7 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   def getUserTable: Future[Seq[User]] = db.run(userTable.result)
 
   def insertByUserId(student: Student, userId: Long): Future[Boolean] = {
-    getStudentByName(student.name).flatMap {
+    getStudentByName(student.name, student.event).flatMap {
       case Some(_) => Future.successful(false)
       case None =>
         for {
@@ -67,8 +67,10 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     db.run(studentTable.result)
   }
 
-  def getStudentByName(name: String): Future[Option[Student]] = {
-    db.run(studentTable.filter(_.name === name).result.headOption)
+  def getStudentByName(name: String, event: String): Future[Option[Student]] = {
+    db.run(studentTable.filter(_.name === name)
+      .filter(_.event === event)
+      .result.headOption)
   }
 
   def getStudentById(id: Long): Future[Option[Student]] = {
@@ -89,18 +91,11 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     db.run(studentTable.filter(_.id === id).delete).map {_ => ()}
   }
 
-  def getLeagueList: Future[Seq[LeagueInfo]] = {
-    for {
-      l <- getAllStudents()
-      a <- Future.successful(l.map { b => LeagueInfo(b.league, b.subLeague) })
-    } yield a.distinct
-  }
-
   def getLeagueListByEvent(event: String): Future[Seq[LeagueInfo]] = {
     for {
       students <- getStudentsPerEvent(event)
       leagueInfo <- Future.successful(students.map { b => LeagueInfo(b.league, b.subLeague) })
-    } yield leagueInfo
+    } yield leagueInfo.distinct
   }
 
   def getUniqueEventList: Future[Seq[String]] = {
@@ -134,6 +129,7 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   }
 
   private def getRoundedPercentage(first: Int, second: Int): Double = {
+    //TODO should i check first and second args are non-zero
     val double = first.toDouble * 100.0 / second.toDouble
     val bd = BigDecimal(double)
     bd.setScale(1, RoundingMode.HALF_UP).toDouble
@@ -153,16 +149,31 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       totalNumberOfLocalStudent, totalNumberOfInternationalStudent)
   }
 
-  def getStudentsPerLeague(leagueInfo: LeagueInfo): Future[StudentsPerLeague] = {
+  def getTotalSizeInfoPerEvent(event: String): Future[TotalSizeInfo] = {
+    for {
+      students <- getStudentsPerEvent(event)
+      totalNumberOfStudent <- Future.successful(students.size)
+      totalNumberOfTeam <- Future.successful(teamSize(students))
+      totalNumberOfLocalTeam <- Future.successful(localTeamSize(students))
+      totalNumberOfInternationalTeam <- Future.successful(internationalTeamSize(students))
+      totalNumberOfLocalStudent <- Future.successful(getLocalStudentSize(students))
+      totalNumberOfInternationalStudent <- Future.successful(getInternationalStudentSize(students))
+    } yield TotalSizeInfo(totalNumberOfStudent, totalNumberOfTeam,
+      totalNumberOfLocalTeam, totalNumberOfInternationalTeam,
+      totalNumberOfLocalStudent, totalNumberOfInternationalStudent)
+  }
+
+  def getStudentsPerLeague(event: String, leagueInfo: LeagueInfo): Future[StudentsPerLeague] = {
     val studentsPerLeague: Future[Seq[Student]] = db.run(studentTable
       .filter(_.league === leagueInfo.league)
       .filter(_.subLeague === leagueInfo.subLeague)
+      .filter(_.event === event)
       .result)
 
     for {
-      totalStudents <- getAllStudents()
-      totalTeamSize <- Future.successful(teamSize(totalStudents))
-      totalStudentSize <- Future.successful(totalStudents.size)
+      studentsPerEvent <- getStudentsPerEvent(event)
+      totalTeamSize <- Future.successful(teamSize(studentsPerEvent))
+      totalStudentSize <- Future.successful(studentsPerEvent.size)
       students <- studentsPerLeague
       //we want to sort by team name for now
     } yield StudentsPerLeague(leagueInfo, students.sortBy(_.teamName), students.size,

@@ -97,18 +97,8 @@ class StudentController @Inject()(components: ControllerComponents,
     val user = Some(request.identity)
     for {
       events <- studentDao.getUniqueEventList
-      eventsMap <- Future.successful(events.map(e => (e,e)))
+      eventsMap <- Future.successful(events.map(e => (e, e)))
     } yield Ok(views.html.Student.report(user, Forms.eventForm, eventsMap))
-  }
-
-  def studentsPerLeague = SecuredAction.async { implicit request =>
-    val user = Some(request.identity)
-    for {
-      l <- studentDao.getLeagueList
-      studentsPerLeague <- Future.sequence(l map (v => studentDao.getStudentsPerLeague(v)))
-      totalSizeInfo <- studentDao.getTotalSizeInfo
-    } yield Ok(views.html.Student.numberofstudentsateachleague(user, studentsPerLeague, totalSizeInfo))
-
   }
 
   val country = "Country"
@@ -171,16 +161,17 @@ class StudentController @Inject()(components: ControllerComponents,
 
     val submittedLeagueInfo: Option[LeagueInfo] = LeagueInfo.unapply(combinedLeagueName)
     if (submittedLeagueInfo.isEmpty) {
-      println("we have empty")
       for {
         t <- totalNumberOfCombinedLeague
-      } yield Ok(views.html.Student.view(user, Forms.leagueForm, t, Seq(), event))
+      //we need to pre-fill the event//if we pass the event by value, it will only read first few words before space//strange
+      } yield Ok(views.html.Student.view(user, Forms.leagueForm.fill(CombinedLeagueNameWithEvent("", event)), t, Seq()))
     }
     else {
       for {
-        studentsPerLeague <- studentDao.getStudentsPerLeague(submittedLeagueInfo.get)
+      //we need to pre-fill the event
+        studentsPerLeague <- studentDao.getStudentsPerLeague(event, submittedLeagueInfo.get)
         g <- totalNumberOfCombinedLeague
-      } yield Ok(views.html.Student.view(user, Forms.leagueForm, g, Seq(studentsPerLeague), event))
+      } yield Ok(views.html.Student.view(user, Forms.leagueForm.fill(CombinedLeagueNameWithEvent("", event)), g, Seq(studentsPerLeague)))
     }
   }
 
@@ -238,7 +229,7 @@ class StudentController @Inject()(components: ControllerComponents,
     val user = Some(request.identity)
     for {
       eventList <- studentDao.getUniqueEventList
-      mapEventList <- Future.successful(eventList.map(e => (e,e)))
+      mapEventList <- Future.successful(eventList.map(e => (e, e)))
     } yield Ok(views.html.Student.selectevent(user, Forms.eventForm, mapEventList))
   }
 
@@ -257,12 +248,18 @@ class StudentController @Inject()(components: ControllerComponents,
       success = { event =>
         for {
           _ <- studentDao.getStudentsPerEvent(event)
-        } yield Redirect(routes.StudentController.view(event))
+        } yield Redirect(routes.StudentController.overviewReportPerEvent(event))
       })
 
   }
 
-
-
+  def overviewReportPerEvent(event: String) = SecuredAction.async { implicit request =>
+    val user = Some(request.identity)
+    for {
+      leagues <- studentDao.getLeagueListByEvent(event)
+      totalSizeInfo <- studentDao.getTotalSizeInfoPerEvent(event)
+      studentPerLeague <- Future.sequence(leagues map (v => studentDao.getStudentsPerLeague(event, v)))
+    } yield Ok(views.html.Student.numberofstudentsateachleague(user, studentPerLeague, totalSizeInfo))
+  }
 
 }

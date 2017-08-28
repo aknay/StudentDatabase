@@ -81,9 +81,19 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
     isUserInserted mustBe true
     val user = userDao.getUserByEmail(getNormalUser.email).futureValue
     val isAdded = studentDao.insertByUserId(getStudent, user.get.id.get).futureValue
-    isAdded === true
+    isAdded mustBe true
     val studentList = studentDao.getAllStudents().futureValue
-    studentList.head.name === getStudent.name
+    studentList.head.name mustBe getStudent.name
+  }
+
+  "should add student with same name for different event" in {
+    val isUserInserted = userDao.insertUser(getNormalUser).futureValue
+    isUserInserted mustBe true
+    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
+    val isAddedWithEventAbc = studentDao.insertByUserId(student1.copy(event = "abc"), user.get.id.get).futureValue
+    val isAddedWithEventXyz = studentDao.insertByUserId(student1.copy(event = "xyz"), user.get.id.get).futureValue
+    isAddedWithEventAbc mustBe true
+    isAddedWithEventXyz mustBe true
   }
 
   "should not add user when user is existed" in {
@@ -97,6 +107,7 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
     isAddedAgain mustBe false
   }
 
+
   "should get unique league list" in {
     userDao.insertUser(getNormalUser).futureValue
     val user = userDao.getUserByEmail(getNormalUser.email).futureValue
@@ -108,7 +119,7 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
     studentDao.insertByUserId(student5, user.get.id.get).futureValue
     studentDao.insertByUserId(student6, user.get.id.get).futureValue
 
-    val leagueList = studentDao.getLeagueList.futureValue
+    val leagueList = studentDao.getLeagueListByEvent(student1.event).futureValue
     leagueList.size mustBe 5
   }
 
@@ -124,13 +135,13 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
     studentDao.insertByUserId(student5, user.get.id.get).futureValue
     studentDao.insertByUserId(student6, user.get.id.get).futureValue
 
-    val leagueList = studentDao.getLeagueList.futureValue
+    val leagueList = studentDao.getLeagueListByEvent(student1.event).futureValue
     leagueList.size mustBe 5
 
-    val studentsFromLeagueOne = studentDao.getStudentsPerLeague(leagueOne).futureValue
+    val studentsFromLeagueOne = studentDao.getStudentsPerLeague(student1.event, leagueOne).futureValue
     studentsFromLeagueOne.students.size mustBe 2
 
-    val studentsFromLeagueTwo = studentDao.getStudentsPerLeague(leagueTwo).futureValue
+    val studentsFromLeagueTwo = studentDao.getStudentsPerLeague(student1.event, leagueTwo).futureValue
     studentsFromLeagueTwo.students.size mustBe 1
 
     val allStudentsToDelete = studentDao.getAllStudents().futureValue
@@ -141,7 +152,6 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
     userDao.insertUser(getNormalUser).futureValue
 
     val user = userDao.getUserByEmail(getNormalUser.email).futureValue
-
 
     studentDao.insertByUserId(student1.copy(event = "abc"), user.get.id.get).futureValue
     studentDao.insertByUserId(student2.copy(event = "abc"), user.get.id.get).futureValue
