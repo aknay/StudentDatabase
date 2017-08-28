@@ -95,7 +95,10 @@ class StudentController @Inject()(components: ControllerComponents,
 
   def report = SecuredAction.async { implicit request =>
     val user = Some(request.identity)
-    Future.successful(Ok(views.html.Student.report(user)))
+    for {
+      events <- studentDao.getUniqueEventList
+      eventsMap <- Future.successful(events.map(e => (e,e)))
+    } yield Ok(views.html.Student.report(user, Forms.eventForm, eventsMap))
   }
 
   def studentsPerLeague = SecuredAction.async { implicit request =>
