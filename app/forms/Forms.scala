@@ -3,6 +3,7 @@ package forms
 import models._
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.data.validation.Constraints
 
 
 /**
@@ -13,8 +14,8 @@ object Forms {
   val signUpForm = Form(
     mapping(
       "id" -> ignored(None: Option[Long]),
-      "email" -> email,
-      "password" -> nonEmptyText,
+      "email" -> email.verifying(Constraints.emailAddress),
+      "password" -> nonEmptyText(minLength = 6),
       "username" -> nonEmptyText,
       "role" -> ignored(Role.NormalUser: Role),
       "activated" -> ignored(false)
