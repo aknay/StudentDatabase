@@ -1,17 +1,31 @@
+@(user: Option[User])
+@Template.navbar(user)
 @import helper._
 <!DOCTYPE html>
 <html>
 <head>
 </head>
 <body>
-<p>
-    @form(action = routes.StudentController.uploadCsv, 'enctype -> "multipart/form-data") {
 
-    <input type="file" name="csv">
 
-<p>
-    <input type="submit" class="btn">
-</p>
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+
+        <h1>Upload CSV File</h1>
+        <p>
+            @form(action = routes.StudentController.uploadCsv, 'enctype -> "multipart/form-data") {
+
+            <input type="file" name="csv">
+        <br>
+        <p>
+            <input type="submit" class="btn btn-default">
+        </p>
+
+    </div>
+</div>
+
+
+
 
 
 }

@@ -15,7 +15,7 @@
         <p class="bg-danger"> @message</p>
         }
 
-        @b3.form(routes.StudentController.submitEvent) {
+        @b3.form(routes.StudentController.submitEventToViewReport) {
         @b3.select( eventForm("event"), options = eventList, '_label -> "Select", '_default -> "Select an option" )
         @b3.submit('class -> "btn btn-default"){ View }
         }

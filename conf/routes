@@ -52,14 +52,15 @@ POST    /student/submit              controllers.StudentController.submitStudent
 POST    /student/submitwithcsv       controllers.StudentController.submitStudentWithCsvForm
 POST    /student/uploadcsv           controllers.StudentController.uploadCsv
 GET    /student/upload           controllers.StudentController.upload
-GET    /student/report           controllers.StudentController.report
+GET    /student/selecteventtoviewreport          controllers.StudentController.selectEventToViewReport
 GET    /student/view/:event             controllers.StudentController.view(event: String,combinedLeagueName: String ?= "all")
 POST    /student/submitleagueform     controllers.StudentController.submitLeagueForm
 GET    /student/update     controllers.StudentController.update(id: Long)
 POST    /student/submitupdate     controllers.StudentController.submitUpdate(id: Long)
 GET    /student/delete     controllers.StudentController.delete(id: Long)
-GET    /student/selectevent     controllers.StudentController.selectEvent
-POST    /student/submitevent     controllers.StudentController.submitEvent
+GET    /student/selecteventtoviewStudents     controllers.StudentController.selectEventToViewStudents
+POST    /student/submiteventtoviewstudents     controllers.StudentController.submitEventToViewStudents
+POST    /student/submiteventtoviewreport    controllers.StudentController.submitEventToViewReport
 GET     /student/overviewreportperevent/:event controllers.StudentController.overviewReportPerEvent(event: String)
 
 # Map static resources from the /public folder to the /assets URL path
