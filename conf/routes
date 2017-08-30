@@ -5,63 +5,62 @@
 # An example controller showing a sample home page
 
 
-GET     /                           controllers.HomeController.index
-GET     /add                        controllers.AlbumController.add
-POST    /save                       controllers.AlbumController.save
-GET     /delete/:id                 controllers.AlbumController.delete(id : Long)
-GET     /edit/:id                   controllers.AlbumController.edit(id : Long)
-POST    /update/:id             	controllers.AlbumController.update(id: Long)
+GET     /                               controllers.HomeController.index
+GET     /add                            controllers.AlbumController.add
+POST    /save                           controllers.AlbumController.save
+GET     /delete/:id                     controllers.AlbumController.delete(id : Long)
+GET     /edit/:id                       controllers.AlbumController.edit(id : Long)
+POST    /update/:id             	    controllers.AlbumController.update(id: Long)
 
 
-GET     /signup                     controllers.UserController.signUp
-GET		/signup/:token				controllers.UserController.signUpWithToken(token: String)
-GET		/approve/:token				controllers.UserController.approveUserWithToken(token: String)
-POST    /submitSignUpForm          	controllers.UserController.submitSignUpForm
-GET     /request                    controllers.UserController.requestToBeMaster
+GET     /signup                         controllers.UserController.signUp
+GET		/signup/:token				    controllers.UserController.signUpWithToken(token: String)
+GET		/approve/:token				    controllers.UserController.approveUserWithToken(token: String)
+POST    /submitSignUpForm          	    controllers.UserController.submitSignUpForm
+GET     /request                        controllers.UserController.requestToBeMaster
 
-GET     /admin/viewusers            controllers.AdminController.viewAllNonAdminUser
-GET     /admin/viewalbums/:id/:page controllers.AdminController.viewAllAlbumsFromNonAdminUser(id: Long, page: Int)
-GET     /admin/makeannouncement     controllers.AdminController.viewAnnouncementForm
-POST    /admin/submitannouncement    controllers.AdminController.submitAnnouncement
-GET    /admin/announcementsuccess   controllers.AdminController.viewSuccessfulAnnouncement
-GET    /admin/viewannouncement      controllers.AdminController.viewAnnouncement
-GET    /admin/deleteannouncement    controllers.AdminController.deleteAnnouncement
-GET		/admin	                    controllers.AdminController.admin
-GET		/admin/viewevents	        controllers.AdminController.viewEvents
-POST	/admin/submitaddeventform   controllers.AdminController.submitAddEventForm
-GET		/admin/addEvent             controllers.AdminController.addEvent
-GET 	/admin/deleteEvent          controllers.AdminController.deleteEvent
+GET     /admin/viewusers                controllers.AdminController.viewAllNonAdminUser
+GET     /admin/viewalbums/:id/:page     controllers.AdminController.viewAllAlbumsFromNonAdminUser(id: Long, page: Int)
+GET     /admin/makeannouncement         controllers.AdminController.viewAnnouncementForm
+POST    /admin/submitannouncement       controllers.AdminController.submitAnnouncement
+GET    /admin/announcementsuccess       controllers.AdminController.viewSuccessfulAnnouncement
+GET    /admin/viewannouncement          controllers.AdminController.viewAnnouncement
+GET    /admin/deleteannouncement        controllers.AdminController.deleteAnnouncement
+GET		/admin	                        controllers.AdminController.admin
+GET		/admin/viewevents	            controllers.AdminController.viewEvents
+POST	/admin/submitaddeventform       controllers.AdminController.submitAddEventForm
+GET		/admin/addEvent                 controllers.AdminController.addEvent
+GET 	/admin/deleteEvent              controllers.AdminController.deleteEvent
 POST 	/admin/submitdeleteeventfrom    controllers.AdminController.submitDeleteEventForm
 
 
-GET     /login                      controllers.UserController.login
-POST    /submitLoginForm      	    controllers.UserController.submitLoginForm
-GET     /logout                     controllers.UserController.logout
-GET     /user/profile               controllers.UserController.user
-GET     /user/listalbum             controllers.UserController.listAlbum(p:Int ?= 0)
-GET     /edit                       controllers.UserController.editUserInfo
-POST    /user/update                controllers.UserController.updateUserInfo
-GET     /user/requestresetpassword  controllers.UserController.requestResetPassword
-GET    /user/resetpassword/:token   controllers.UserController.resetPassword(token: String)
-POST    /user/forgotpassword        controllers.UserController.handleForgotPassword
-POST	/user/reset-password/:token	controllers.UserController.handleResetPassword(token: String)
+GET     /login                          controllers.UserController.login
+POST    /submitLoginForm      	        controllers.UserController.submitLoginForm
+GET     /logout                         controllers.UserController.logout
+GET     /user/profile                   controllers.UserController.user
+GET     /user/listalbum                 controllers.UserController.listAlbum(p:Int ?= 0)
+GET     /edit                           controllers.UserController.editUserInfo
+POST    /user/update                    controllers.UserController.updateUserInfo
+GET     /user/requestresetpassword      controllers.UserController.requestResetPassword
+GET    /user/resetpassword/:token       controllers.UserController.resetPassword(token: String)
+POST    /user/forgotpassword            controllers.UserController.handleForgotPassword
+POST	/user/reset-password/:token	    controllers.UserController.handleResetPassword(token: String)
 
-GET     /student/add                controllers.StudentController.add
-GET     /student/menu                controllers.StudentController.menu
-POST    /student/submit              controllers.StudentController.submitStudentForm
-POST    /student/submitwithcsv       controllers.StudentController.submitStudentWithCsvForm
-POST    /student/uploadcsv           controllers.StudentController.uploadCsv
-GET    /student/upload           controllers.StudentController.upload
-GET    /student/selecteventtoviewreport          controllers.StudentController.selectEventToViewReport
+GET     /student/menu                   controllers.StudentController.menu
+GET     /student/add                    controllers.StudentController.viewStudentForm
+POST    /student/add                    controllers.StudentController.submitStudentForm
+GET    /student/delete                  controllers.StudentController.delete(id: Long)
+GET    /student/update                  controllers.StudentController.update(id: Long)
+POST    /student/update                 controllers.StudentController.submitUpdate(id: Long)
+POST    /student/upload                 controllers.StudentController.submitUploadForm
+GET    /student/upload                  controllers.StudentController.viewUploadForm
+GET    /student/form/event/report       controllers.StudentController.selectEventToViewReport
+POST    /student/form/event/report      controllers.StudentController.submitEventToViewReport
 GET    /student/view/:event             controllers.StudentController.view(event: String,combinedLeagueName: String ?= "all")
-POST    /student/submitleagueform     controllers.StudentController.submitLeagueForm
-GET    /student/update     controllers.StudentController.update(id: Long)
-POST    /student/submitupdate     controllers.StudentController.submitUpdate(id: Long)
-GET    /student/delete     controllers.StudentController.delete(id: Long)
-GET    /student/selecteventtoviewStudents     controllers.StudentController.selectEventToViewStudents
-POST    /student/submiteventtoviewstudents     controllers.StudentController.submitEventToViewStudents
-POST    /student/submiteventtoviewreport    controllers.StudentController.submitEventToViewReport
-GET     /student/overviewreportperevent/:event controllers.StudentController.overviewReportPerEvent(event: String)
+POST    /student/form/league            controllers.StudentController.submitLeagueForm
+GET    /student/form/event/students     controllers.StudentController.selectEventToViewStudents
+POST    /student/form/event/students    controllers.StudentController.submitEventToViewStudents
+GET     /student/view/report/:event     controllers.StudentController.overviewReport(event: String)
 
 # Map static resources from the /public folder to the /assets URL path
-GET		/assets/*file			controllers.Assets.at(path="/public", file)
+GET		/assets/*file			        controllers.Assets.at(path="/public", file)

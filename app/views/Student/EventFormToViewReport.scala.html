@@ -1,7 +1,7 @@
 @(user: Option[User], eventForm: Form[String] ,eventList: Seq[(String, String)])(implicit messages: Messages, flash: Flash)
 @import helper._
 @import b3.vertical.fieldConstructor
-@main("Select Event To View Student") {
+@main("Login User") {
 
 @Template.navbar(user)
 
@@ -15,11 +15,11 @@
         <p class="bg-danger"> @message</p>
         }
 
-        @b3.form(routes.StudentController.submitEventToViewStudents) {
+        @b3.form(routes.StudentController.submitEventToViewReport) {
         @b3.select( eventForm("event"), options = eventList, '_label -> "Select", '_default -> "Select an option" )
         @b3.submit('class -> "btn btn-default"){ View }
         }
-
+        <div class="well"><a href="@routes.StudentController.menu"> Back To Student Menu</a> </div>
     </div>
 </div>
 }

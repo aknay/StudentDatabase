@@ -13,14 +13,14 @@
 
         <h1>Upload CSV File</h1>
         <p>
-            @form(action = routes.StudentController.uploadCsv, 'enctype -> "multipart/form-data") {
+            @form(action = routes.StudentController.submitUploadForm, 'enctype -> "multipart/form-data") {
 
             <input type="file" name="csv">
         <br>
         <p>
             <input type="submit" class="btn btn-default">
         </p>
-
+        <div class="well"><a href="@routes.StudentController.menu"> Back To Student Menu</a> </div>
     </div>
 </div>
 

@@ -88,6 +88,5 @@ object Forms {
     mapping(
       "combinedLeagueName" -> nonEmptyText,
       "event" -> nonEmptyText,
-    )(CombinedLeagueNameWithEvent.apply)(CombinedLeagueNameWithEvent.unapply)
-  )
+    )(CombinedLeagueNameWithEvent.apply)(CombinedLeagueNameWithEvent.unapply))
 }

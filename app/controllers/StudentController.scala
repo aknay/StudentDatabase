@@ -29,7 +29,7 @@ class StudentController @Inject()(components: ControllerComponents,
   extends AbstractController(components) with I18nSupport with AuthController {
   /** we can use album form directly with Album case class by applying id as Option[Long] */
 
-  def add = SecuredAction.async { implicit request =>
+  def viewStudentForm = SecuredAction.async { implicit request =>
     val user = Some(request.identity)
     Future.successful(Ok(views.html.Student.add(user, Forms.studentForm)))
   }
@@ -46,42 +46,13 @@ class StudentController @Inject()(components: ControllerComponents,
       success = {
         newAlbum =>
           studentDao.insertByUserId(newAlbum, request.identity.id.get).map {
-            case true => Redirect(routes.StudentController.add()) flashing (
+            case true => Redirect(routes.StudentController.viewStudentForm()) flashing (
               "success" -> Messages("student.added.success"))
 
-            case false => Redirect(routes.StudentController.add()) flashing (Flash(stduentForm.data) +
+            case false => Redirect(routes.StudentController.viewStudentForm()) flashing (Flash(stduentForm.data) +
               ("error" -> Messages("student.alreadyExisted.error")))
           }
       })
-  }
-
-  def submitStudentWithCsvForm = SecuredAction.async { implicit request =>
-    val user: User = request.identity
-    val stduentForm = Forms.studentCsvForm.bindFromRequest()
-    stduentForm.fold(
-      hasErrors = { form =>
-        println("we are having error, try to check form data is matched with html")
-        println(form.data)
-        Future.successful(Redirect(routes.HomeController.index()))
-      },
-      success = {
-        stduentWithCsvForm =>
-
-          val csv = stduentWithCsvForm._2
-
-          println(csv)
-
-          println("-----------------printing line--------------------------------->")
-          val line = csv.split(" ").map(_.trim)
-          line.foreach(println)
-
-
-          val cols: Array[String] = csv.split(",").map(_.trim)
-          println("-------------------------------------------------->")
-          cols.foreach(println)
-      })
-
-    Future.successful(Ok)
   }
 
   def menu = SecuredAction.async { implicit request =>
@@ -89,7 +60,7 @@ class StudentController @Inject()(components: ControllerComponents,
     Future.successful(Ok(views.html.Student.menu(user)))
   }
 
-  def upload = SecuredAction(parse.temporaryFile) { implicit request =>
+  def viewUploadForm = SecuredAction(parse.temporaryFile) { implicit request =>
     val user = Some(request.identity)
     Ok(views.html.Student.upload(user))
   }
@@ -99,7 +70,7 @@ class StudentController @Inject()(components: ControllerComponents,
     for {
       events <- studentDao.getUniqueEventList
       eventsMap <- Future.successful(events.map(e => (e, e)))
-    } yield Ok(views.html.Student.SubmitEventToViewStudents(user, Forms.eventForm, eventsMap))
+    } yield Ok(views.html.Student.EventFormToViewStudents(user, Forms.eventForm, eventsMap))
   }
 
   val country = "Country"
@@ -125,7 +96,7 @@ class StudentController @Inject()(components: ControllerComponents,
       map(subLeague), map(eventName), Some(Utils.getTimeStampFromDate(new Date())), updateBy = Some(userId))
   }
 
-  def uploadCsv = SecuredAction.async(parse.multipartFormData) { implicit request =>
+  def submitUploadForm = SecuredAction.async(parse.multipartFormData) { implicit request =>
     val user = Some(request.identity)
     val students: Future[Seq[StudentWithStatus]] = request.body.file("csv").map { csv =>
       val reader = CSVReader.open(csv.ref.file)
@@ -231,7 +202,7 @@ class StudentController @Inject()(components: ControllerComponents,
     for {
       eventList <- studentDao.getUniqueEventList
       mapEventList <- Future.successful(eventList.map(e => (e, e)))
-    } yield Ok(views.html.Student.SubmitEventToViewReport(user, Forms.eventForm, mapEventList))
+    } yield Ok(views.html.Student.EventFormToViewReport(user, Forms.eventForm, mapEventList))
   }
 
   def submitEventToViewReport = SecuredAction.async { implicit request =>
@@ -249,7 +220,7 @@ class StudentController @Inject()(components: ControllerComponents,
       success = { event =>
         for {
           _ <- studentDao.getStudentsPerEvent(event)
-        } yield Redirect(routes.StudentController.overviewReportPerEvent(event))
+        } yield Redirect(routes.StudentController.overviewReport(event))
       })
   }
 
@@ -272,7 +243,7 @@ class StudentController @Inject()(components: ControllerComponents,
       })
   }
 
-  def overviewReportPerEvent(event: String) = SecuredAction.async { implicit request =>
+  def overviewReport(event: String) = SecuredAction.async { implicit request =>
     val user = Some(request.identity)
     for {
       leagues <- studentDao.getLeagueListByEvent(event)
