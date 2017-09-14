@@ -127,7 +127,7 @@ class StudentController @Inject()(components: ControllerComponents,
 
   def view(event: String, combinedLeagueName: String) = SecuredAction.async { implicit request =>
     val user = Some(request.identity)
-    val totalNumberOfCombinedLeague: Future[Seq[(String, String)]] = studentDao.getLeagueListByEvent(event).map {
+    val totalNumberOfCombinedLeague: Future[Seq[(String, String)]] = studentDao.getLeagueInfoListByEvent(event).map {
       a => a.map(b => (combineLeagueAndSubLeague(b.league, b.subLeague), combineLeagueAndSubLeague(b.league, b.subLeague)))
     }
 
@@ -205,6 +205,14 @@ class StudentController @Inject()(components: ControllerComponents,
     } yield Ok(views.html.Student.EventFormToViewReport(user, Forms.eventForm, mapEventList))
   }
 
+  def selectEventToDeleteLeagues = SecuredAction.async { implicit request =>
+    val user = Some(request.identity)
+    for {
+      eventList <- studentDao.getUniqueEventList
+      mapEventList <- Future.successful(eventList.map(e => (e, e)))
+    } yield Ok(views.html.Student.EventFormToDeleteStudents(user, Forms.eventForm, mapEventList))
+  }
+
   def submitEventToViewReport = SecuredAction.async { implicit request =>
 
     val user = Some(request.identity)
@@ -243,10 +251,34 @@ class StudentController @Inject()(components: ControllerComponents,
       })
   }
 
+  def submitEventToDeleteLeagues = SecuredAction.async { implicit request =>
+
+    val user = Some(request.identity)
+    val eventForm = Forms.eventForm.bindFromRequest()
+
+    eventForm.fold(
+      hasErrors = {
+        errorForm =>
+          println("we are having error, try to check form data is matched with html")
+          println(errorForm.data)
+          Future.successful(Ok) //TODO
+      },
+      success = { event =>
+        Future.successful(Redirect(routes.StudentController.viewLeagueListToDelete(event)))
+      })
+  }
+
+  def viewLeagueListToDelete(event: String) = SecuredAction.async { implicit request =>
+    val user = Some(request.identity)
+    for {
+      leagueList <- studentDao.getLeagueListByEvent(event)
+    } yield Ok(views.html.Student.ListLeaguesWithTableToDelete(user,event,leagueList))
+  }
+
   def overviewReport(event: String) = SecuredAction.async { implicit request =>
     val user = Some(request.identity)
     for {
-      leagues <- studentDao.getLeagueListByEvent(event)
+      leagues <- studentDao.getLeagueInfoListByEvent(event)
       totalSizeInfo <- studentDao.getTotalSizeInfoPerEvent(event)
       studentPerLeague <- Future.sequence(leagues map (v => studentDao.getStudentsPerLeague(event, v)))
     } yield Ok(views.html.Student.ReportPerEvent(user, studentPerLeague, totalSizeInfo))

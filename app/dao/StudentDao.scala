@@ -98,10 +98,17 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       .delete).map{ _ => ()}
   }
 
-  def getLeagueListByEvent(event: String): Future[Seq[LeagueInfo]] = {
+  def getLeagueInfoListByEvent(event: String): Future[Seq[LeagueInfo]] = {
     for {
       students <- getStudentsPerEvent(event)
       leagueInfo <- Future.successful(students.map { b => LeagueInfo(b.league, b.subLeague) })
+    } yield leagueInfo.distinct
+  }
+
+  def getLeagueListByEvent(event: String): Future[Seq[String]] = {
+    for {
+      students <- getStudentsPerEvent(event)
+      leagueInfo <- Future.successful(students.map { b => b.league})
     } yield leagueInfo.distinct
   }
 
