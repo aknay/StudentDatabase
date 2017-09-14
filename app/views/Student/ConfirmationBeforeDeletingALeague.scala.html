@@ -1,0 +1,41 @@
+@(user: Option[User], event: String, league: String)(implicit messages: Messages, flash: Flash)
+
+@import helper.Implicits._
+@import b3.vertical.fieldConstructor
+@Template.navbar(user)
+
+<style>
+  button{
+  margin: 13px;
+}
+</style>
+
+<div class="container">
+<div class="row">
+    <div class="col-md-1"> </div>
+    <div class="col-md-10 center-block">
+
+        <h1>Delete A League</h1>
+
+        @flash.get("error").map { message =>
+        <p class="bg-danger"> @message</p>
+        }
+        @flash.get("success").map { message =>
+        <p class="bg-success"> @message</p>
+        }
+        <div class="well">
+        <p> Are you sure you want to delete <strong>@league</strong> from <em>@event</em> ?</p>
+        <br>
+            <div class="btn-toolbar pull-right">
+        <a href="@routes.StudentController.confirmDeletingALeague(event, league)" class="btn btn-danger" role="button">DELETE</a>
+        <a href="@routes.StudentController.viewLeagueListToDelete(event)" class="btn btn-primary" role="button">CANCLE</a>
+        </div>
+        <br>
+        </div>
+
+        <div class="well"><a href="@routes.StudentController.menu"> Back To Student Menu</a> </div>
+
+    </div>
+    <div class="col-md-1"> </div>
+</div>
+</div>

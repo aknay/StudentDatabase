@@ -210,7 +210,7 @@ class StudentController @Inject()(components: ControllerComponents,
     for {
       eventList <- studentDao.getUniqueEventList
       mapEventList <- Future.successful(eventList.map(e => (e, e)))
-    } yield Ok(views.html.Student.EventFormToDeleteStudents(user, Forms.eventForm, mapEventList))
+    } yield Ok(views.html.Student.EventFormToDeleteLeagues(user, Forms.eventForm, mapEventList))
   }
 
   def submitEventToViewReport = SecuredAction.async { implicit request =>
@@ -272,7 +272,19 @@ class StudentController @Inject()(components: ControllerComponents,
     val user = Some(request.identity)
     for {
       leagueList <- studentDao.getLeagueListByEvent(event)
-    } yield Ok(views.html.Student.ListLeaguesWithTableToDelete(user,event,leagueList))
+    } yield Ok(views.html.Student.ListLeaguesWithTableToDelete(user, event, leagueList))
+  }
+
+  def askBeforeDeletingALeague(event: String, league: String) = SecuredAction.async { implicit request =>
+    val user = Some(request.identity)
+    Future.successful(Ok(views.html.Student.ConfirmationBeforeDeletingALeague(user, event, league)))
+  }
+
+  def confirmDeletingALeague(event: String, league: String) = SecuredAction.async { implicit request =>
+    for {
+      _ <- studentDao.deleteStudentByEventAndLeague(event, league)
+    } yield Redirect(routes.StudentController.viewLeagueListToDelete(event)) flashing (
+      "success" -> Messages("league.delete.success", league, event))
   }
 
   def overviewReport(event: String) = SecuredAction.async { implicit request =>

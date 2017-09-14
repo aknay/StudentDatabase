@@ -64,6 +64,8 @@ GET     /student/view/report/:event     controllers.StudentController.overviewRe
 GET    /student/form/event/leagues/delete     controllers.StudentController.selectEventToDeleteLeagues
 POST    /student/form/event/leagues/delete     controllers.StudentController.submitEventToDeleteLeagues
 GET    /student/view/leagues/:event     controllers.StudentController.viewLeagueListToDelete(event: String)
+GET    /student/delete/ask/leagues/:event/:league     controllers.StudentController.askBeforeDeletingALeague(event: String, league: String)
+GET    /student/delete/confirm/leagues/:event/:league     controllers.StudentController.confirmDeletingALeague(event: String, league: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET		/assets/*file			        controllers.Assets.at(path="/public", file)

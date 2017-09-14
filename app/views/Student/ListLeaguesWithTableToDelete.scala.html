@@ -3,7 +3,7 @@
 @import helper.Implicits._
 @import b3.vertical.fieldConstructor
 @Template.navbar(user)
-
+<div class="container">
 <div class="row">
     <div class="col-md-1"> </div>
     <div class="col-md-10">
@@ -32,6 +32,8 @@
             <tr>
                 <td>@event</td>
                 <td>@league</td>
+                <td><a href="@routes.StudentController.askBeforeDeletingALeague(event, league)">delete</a></td>
+
             </tr>
             }
             </tbody>
@@ -41,4 +43,5 @@
 
     </div>
     <div class="col-md-1"> </div>
+</div>
 </div>
