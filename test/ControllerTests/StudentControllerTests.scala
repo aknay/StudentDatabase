@@ -41,7 +41,7 @@ class StudentControllerTests extends PlaySpec with GuiceOneAppPerTest with Scala
 
     "should able to access add-student-page" in new NormalUserContext {
       new WithApplication(application) {
-        val Some(result) = route(app, FakeRequest(routes.StudentController.add())
+        val Some(result) = route(app, FakeRequest(routes.StudentController.viewStudentForm())
           .withAuthenticator[MyEnv](NORMAL_USER.loginInfo))
         status(result) mustBe OK
       }

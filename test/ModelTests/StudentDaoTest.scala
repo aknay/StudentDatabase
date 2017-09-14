@@ -188,5 +188,30 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
     lastStudentList.size mustBe 1
   }
 
+  "should delete students from event and league" in {
+    userDao.insertUser(getNormalUser).futureValue
+
+    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
+
+    val eventOne = "abc"
+    val eventTwo = "def"
+    val leagueOne = "l1"
+    val leagueTwo = "l2"
+
+    studentDao.insertByUserId(student1.copy(event = eventOne, league = leagueOne), user.get.id.get).futureValue
+    studentDao.insertByUserId(student2.copy(event = eventOne, league = leagueOne), user.get.id.get).futureValue
+    studentDao.insertByUserId(student3.copy(event = eventOne, league = leagueTwo), user.get.id.get).futureValue
+    studentDao.insertByUserId(student4.copy(event = eventOne, league = leagueTwo), user.get.id.get).futureValue
+    studentDao.insertByUserId(student5.copy(event = eventTwo), user.get.id.get).futureValue
+    studentDao.insertByUserId(student6.copy(event = eventTwo), user.get.id.get).futureValue
+
+
+    studentDao.getAllStudents().futureValue.size mustBe 6
+
+    studentDao.deleteStudentByEventAndLeague(eventOne, leagueOne).futureValue
+
+    studentDao.getAllStudents().futureValue.size mustBe 4
+  }
+
 
 }
