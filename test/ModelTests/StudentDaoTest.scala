@@ -138,10 +138,10 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
     val leagueList = studentDao.getLeagueInfoListByEvent(student1.event).futureValue
     leagueList.size mustBe 5
 
-    val studentsFromLeagueOne = studentDao.getStudentsPerLeague(student1.event, leagueOne).futureValue
+    val studentsFromLeagueOne = studentDao.getStudentsPerCombinedLeague(student1.event, leagueOne).futureValue
     studentsFromLeagueOne.students.size mustBe 2
 
-    val studentsFromLeagueTwo = studentDao.getStudentsPerLeague(student1.event, leagueTwo).futureValue
+    val studentsFromLeagueTwo = studentDao.getStudentsPerCombinedLeague(student1.event, leagueTwo).futureValue
     studentsFromLeagueTwo.students.size mustBe 1
 
     val allStudentsToDelete = studentDao.getAllStudents().futureValue
@@ -235,6 +235,33 @@ class StudentDaoTest extends PlaySpec with BeforeAndAfterEach with GuiceOneAppPe
     leagueList.size mustBe 2
     leagueList.head mustBe leagueOne
     leagueList.last mustBe leagueTwo
+  }
+
+  "should get subLeague List" in {
+    userDao.insertUser(getNormalUser).futureValue
+
+    val user = userDao.getUserByEmail(getNormalUser.email).futureValue
+
+    val eventOne = "abc"
+    val eventTwo = "def"
+    val leagueOne = "l1"
+    val leagueTwo = "l2"
+    val subLeagueOne = "s1abc"
+    val subLeagueTwo = "s2abc"
+
+    studentDao.insertByUserId(student1.copy(event = eventOne, league = leagueOne, subLeague = subLeagueOne), user.get.id.get).futureValue
+    studentDao.insertByUserId(student2.copy(event = eventOne, league = leagueOne, subLeague = subLeagueTwo), user.get.id.get).futureValue
+    studentDao.insertByUserId(student3.copy(event = eventOne, league = leagueTwo), user.get.id.get).futureValue
+    studentDao.insertByUserId(student4.copy(event = eventOne, league = leagueTwo), user.get.id.get).futureValue
+    studentDao.insertByUserId(student5.copy(event = eventTwo), user.get.id.get).futureValue
+    studentDao.insertByUserId(student6.copy(event = eventTwo), user.get.id.get).futureValue
+
+    studentDao.getAllStudents().futureValue.size mustBe 6
+
+    val subLeagueList = studentDao.getSubLeagueListByEventAndLeague(eventOne, leagueOne).futureValue
+    subLeagueList.size mustBe 2
+    subLeagueList.head mustBe subLeagueOne
+    subLeagueList.last mustBe subLeagueTwo
   }
 
 

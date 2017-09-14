@@ -105,6 +105,13 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
     } yield leagueInfo.distinct
   }
 
+  def getSubLeagueListByEventAndLeague(event: String, league: String): Future[Seq[String]] = {
+      for {
+        a <- getStudentsPerEvent(event)
+        b <- Future.successful(a.filter(_.league == league).map(a => a.subLeague))
+      } yield b.distinct
+  }
+
   def getLeagueListByEvent(event: String): Future[Seq[String]] = {
     for {
       students <- getStudentsPerEvent(event)
@@ -177,7 +184,7 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       totalNumberOfLocalStudent, totalNumberOfInternationalStudent)
   }
 
-  def getStudentsPerLeague(event: String, leagueInfo: LeagueInfo): Future[StudentsPerLeague] = {
+  def getStudentsPerCombinedLeague(event: String, leagueInfo: LeagueInfo): Future[StudentsPerCombinedLeague] = {
     val studentsPerLeague: Future[Seq[Student]] = db.run(studentTable
       .filter(_.league === leagueInfo.league)
       .filter(_.subLeague === leagueInfo.subLeague)
@@ -190,10 +197,43 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       totalStudentSize <- Future.successful(studentsPerEvent.size)
       students <- studentsPerLeague
       //we want to sort by team name for now
-    } yield StudentsPerLeague(leagueInfo, students.sortBy(_.teamName), students.size,
+    } yield StudentsPerCombinedLeague(leagueInfo, students.sortBy(_.teamName), students.size,
       getLocalStudentSize(students), getInternationalStudentSize(students),
       teamSize(students), localTeamSize(students), internationalTeamSize(students),
       getRoundedPercentage(students.size, totalStudentSize), getRoundedPercentage(teamSize(students), totalTeamSize))
+  }
+
+  def getStudentsPerLeague(event: String, league: String): Future[StudentsPerLeague] = {
+    val studentsPerLeague: Future[Seq[Student]] = db.run(studentTable
+      .filter(_.league === league)
+      .filter(_.event === event)
+      .result)
+
+    for {
+      studentsPerEvent <- getStudentsPerEvent(event)
+      totalTeamSize <- Future.successful(teamSize(studentsPerEvent))
+      totalStudentSize <- Future.successful(studentsPerEvent.size)
+      students <- studentsPerLeague
+    //we want to sort by team name for now
+    } yield StudentsPerLeague(league, students.sortBy(_.teamName), students.size,
+      getLocalStudentSize(students), getInternationalStudentSize(students),
+      teamSize(students), localTeamSize(students), internationalTeamSize(students),
+      getRoundedPercentage(students.size, totalStudentSize), getRoundedPercentage(teamSize(students), totalTeamSize))
+  }
+
+ private def getStudentsPerCombinedLeagueFromStudentPerLeague(event: String, s: StudentsPerLeague): Future[StudentsPerLeagueInfo] = {
+    for {
+      a <- getSubLeagueListByEventAndLeague(event, s.league)
+      b <- Future.sequence(a.map{ x => getStudentsPerCombinedLeague(event, LeagueInfo(s.league,x))})
+    } yield StudentsPerLeagueInfo(s, b)
+  }
+
+  def getStudentsPerLeagueInfo(event: String): Future[Seq[StudentsPerLeagueInfo]] = {
+    for {
+      leagueList <- getLeagueListByEvent(event)
+      b <-  Future.sequence(leagueList.map{ l => getStudentsPerLeague(event, l)})
+      c <- Future.sequence(b.map(x =>  getStudentsPerCombinedLeagueFromStudentPerLeague(event, x)))
+    } yield c
   }
 
   def getStudentsPerEvent(event: String): Future[Seq[Student]] = {

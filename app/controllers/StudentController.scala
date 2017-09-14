@@ -141,7 +141,7 @@ class StudentController @Inject()(components: ControllerComponents,
     else {
       for {
       //we need to pre-fill the event
-        studentsPerLeague <- studentDao.getStudentsPerLeague(event, submittedLeagueInfo.get)
+        studentsPerLeague <- studentDao.getStudentsPerCombinedLeague(event, submittedLeagueInfo.get)
         g <- totalNumberOfCombinedLeague
       } yield Ok(views.html.Student.ListStudentPerEventPerCombinedLeague(user, Forms.leagueForm.fill(CombinedLeagueNameWithEvent("", event)), g, Seq(studentsPerLeague)))
     }
@@ -290,10 +290,9 @@ class StudentController @Inject()(components: ControllerComponents,
   def overviewReport(event: String) = SecuredAction.async { implicit request =>
     val user = Some(request.identity)
     for {
-      leagues <- studentDao.getLeagueInfoListByEvent(event)
+      a <- studentDao.getStudentsPerLeagueInfo(event)
       totalSizeInfo <- studentDao.getTotalSizeInfoPerEvent(event)
-      studentPerLeague <- Future.sequence(leagues map (v => studentDao.getStudentsPerLeague(event, v)))
-    } yield Ok(views.html.Student.ReportPerEvent(user, studentPerLeague, totalSizeInfo))
+    } yield Ok(views.html.Student.ReportPerEvent(user, a, totalSizeInfo))
   }
 
 }

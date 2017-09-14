@@ -1,4 +1,4 @@
-@(user: Option[User], studentsPerLeagueList: Seq[StudentsPerLeague], totalSizeInfo: TotalSizeInfo)(implicit messages: Messages)
+@(user: Option[User], studentsPerLeagueList: Seq[StudentsPerLeagueInfo], totalSizeInfo: TotalSizeInfo)(implicit messages: Messages)
 
 @main("Login User") {
 
@@ -29,19 +29,39 @@
             </thead>
             <tbody>
 
-            @for(studentsPerLeague <- studentsPerLeagueList){
+
+
+
+            @for(s <- studentsPerLeagueList){
             <tr>
-                <td>@studentsPerLeague.leagueInfo.league</td>
-                <td>@studentsPerLeague.leagueInfo.subLeague</td>
-                <td>@studentsPerLeague.teamSize</td>
-                <td>@studentsPerLeague.localTeamSize</td>
-                <td>@studentsPerLeague.internationalTeamSize</td>
-                <td>@studentsPerLeague.students.size</td>
-                <td>@studentsPerLeague.numberOfLocalStudent</td>
-                <td>@studentsPerLeague.numberOfInternationalStudent</td>
-                <td>@studentsPerLeague.teamDistribution</td>
-                <td>@studentsPerLeague.studentDistribution</td>
+                <td><strong>@s.studentsOfPerLeague.league</strong></td>
+                <td></td>
+                <td><strong>@s.studentsOfPerLeague.teamSize</strong></td>
+                <td><strong>@s.studentsOfPerLeague.localTeamSize</strong></td>
+                <td><strong>@s.studentsOfPerLeague.internationalTeamSize</strong></td>
+                <td><strong>@s.studentsOfPerLeague.students.size</strong></td>
+                <td><strong>@s.studentsOfPerLeague.numberOfLocalStudent</strong></td>
+                <td><strong>@s.studentsOfPerLeague.numberOfInternationalStudent</strong></td>
+                <td><strong>@s.studentsOfPerLeague.teamDistribution</strong></td>
+                <td><strong>@s.studentsOfPerLeague.studentDistribution</strong></td>
             </tr>
+
+            @for(ss <- s.listOfStudentPerCombinedLeague){
+            <tr>
+                <td>@ss.leagueInfo.league</td>
+                <td>@ss.leagueInfo.subLeague</td>
+                <td>@ss.teamSize</td>
+                <td>@ss.localTeamSize</td>
+                <td>@ss.internationalTeamSize</td>
+                <td>@ss.students.size</td>
+                <td>@ss.numberOfLocalStudent</td>
+                <td>@ss.numberOfInternationalStudent</td>
+                <td>@ss.teamDistribution</td>
+                <td>@ss.studentDistribution</td>
+
+            </tr>
+            }
+
             }
             </tbody>
         </table>
