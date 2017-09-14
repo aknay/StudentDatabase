@@ -54,4 +54,4 @@ mail.sign = Team Titan
 # STUDENT
 student.alreadyExisted.error = Student is already existed
 student.added.success = Student is added
-league.delete.success = You had delete {0} from {1}.
+league.delete.success = You had deleted {0} from {1}.

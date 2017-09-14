@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "9.4.1212",
   "com.adrianhurt" %% "play-bootstrap" % "1.2-P26-B3",
   "org.webjars" % "font-awesome" % "4.7.0",
-  "org.webjars" % "bootstrap-datepicker" % "1.4.0",
+  "org.webjars" % "bootstrap-datepicker" % "1.7.1",
   "com.mohiva" %% "play-silhouette" % "5.0.0",
   "com.mohiva" %% "play-silhouette-password-bcrypt" % "5.0.0",
   "com.mohiva" %% "play-silhouette-persistence" % "5.0.0",
