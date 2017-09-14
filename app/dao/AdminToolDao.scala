@@ -206,8 +206,9 @@ class AdminToolDao @Inject()(userDao: UserDao)(protected val dbConfigProvider: D
       adminTool <- getAdminTool
       isEventEmpty <- Future.successful(adminTool.get.event.isEmpty)
       result <- if (isEventEmpty) {
-        updateAdminTool(user, adminTool.get.copy(event = Some(event)))
-        Future.successful(true)
+        for {
+          _ <- updateAdminTool(user, adminTool.get.copy(event = Some(event)))
+        } yield true
       }
       else {
         val isSuccessful = isEventExisted(event, adminTool.get.event.get).map {
@@ -217,9 +218,9 @@ class AdminToolDao @Inject()(userDao: UserDao)(protected val dbConfigProvider: D
               x =>
                 if (x > 0) {
                   val allevents: String = adminTool.get.event.get + "," + event
-                  updateAdminTool(user, adminTool.get.copy(event = Some(allevents)))
+                  updateAdminTool(user, adminTool.get.copy(event = Some(allevents))).map(_ => ())
                 } else {
-                  updateAdminTool(user, adminTool.get.copy(event = Some(event)))
+                  updateAdminTool(user, adminTool.get.copy(event = Some(event))).map( _ => ())
                 }
             }
             true
@@ -243,10 +244,10 @@ class AdminToolDao @Inject()(userDao: UserDao)(protected val dbConfigProvider: D
             val numberOfEvents = stringToList(allEvents).length
             if (numberOfEvents > 1) {
               val remainingList: Seq[String] = removeStringFromList(event, stringToList(adminTool.get.event.get))
-              updateAdminTool(user, adminTool.get.copy(event = Some(remainingList.mkString(","))))
+              updateAdminTool(user, adminTool.get.copy(event = Some(remainingList.mkString(",")))).map(_ => ())
             }
             else {
-              updateAdminTool(user, adminTool.get.copy(event = None))
+              updateAdminTool(user, adminTool.get.copy(event = None)).map(_ => ())
             }
             true
           case false =>
