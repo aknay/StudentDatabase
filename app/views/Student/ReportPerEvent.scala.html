@@ -4,6 +4,11 @@
 
 @Template.navbar(user)
 
+<style media="screen" type="text/css">
+td.border {
+    border-bottom: 2px solid #7FFFD4;
+}
+</style>
 
 <div class="row">
     <div class="col-md-1"> </div>
@@ -33,18 +38,7 @@
 
 
             @for(s <- studentsPerLeagueList){
-            <tr>
-                <td><strong>@s.studentsOfPerLeague.league</strong></td>
-                <td></td>
-                <td><strong>@s.studentsOfPerLeague.teamSize</strong></td>
-                <td><strong>@s.studentsOfPerLeague.localTeamSize</strong></td>
-                <td><strong>@s.studentsOfPerLeague.internationalTeamSize</strong></td>
-                <td><strong>@s.studentsOfPerLeague.students.size</strong></td>
-                <td><strong>@s.studentsOfPerLeague.numberOfLocalStudent</strong></td>
-                <td><strong>@s.studentsOfPerLeague.numberOfInternationalStudent</strong></td>
-                <td><strong>@s.studentsOfPerLeague.teamDistribution</strong></td>
-                <td><strong>@s.studentsOfPerLeague.studentDistribution</strong></td>
-            </tr>
+
 
             @for(ss <- s.listOfStudentPerCombinedLeague){
             <tr>
@@ -61,6 +55,19 @@
 
             </tr>
             }
+
+            <tr>
+                <td class = "border"><strong>@s.studentsOfPerLeague.league</strong></td>
+                <td class = "border"></td>
+                <td class = "border"><strong>@s.studentsOfPerLeague.teamSize</strong></td>
+                <td class = "border"><strong>@s.studentsOfPerLeague.localTeamSize</strong></td>
+                <td class = "border"><strong>@s.studentsOfPerLeague.internationalTeamSize</strong></td>
+                <td class = "border"><strong>@s.studentsOfPerLeague.students.size</strong></td>
+                <td class = "border"><strong>@s.studentsOfPerLeague.numberOfLocalStudent</strong></td>
+                <td class = "border"><strong>@s.studentsOfPerLeague.numberOfInternationalStudent</strong></td>
+                <td class = "border"><strong>@s.studentsOfPerLeague.teamDistribution</strong></td>
+                <td class = "border"><strong>@s.studentsOfPerLeague.studentDistribution</strong></td>
+            </tr>
 
             }
             </tbody>
