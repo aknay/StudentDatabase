@@ -80,7 +80,7 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   def updateStudentById(id: Long, user: User, student: Student): Future[Unit] = {
     //TODO //event cannot be empty string
     val studentCopy = student.copy(id = Some(id), lastUpdateTime = Some(Utils.getTimeStampFromDate(new Date())), updateBy = user.id)
-    db.run(studentTable.filter(_.id === id).update(studentCopy)).map{_ =>}
+    db.run(studentTable.filter(_.id === id).update(studentCopy)).map { _ => }
   }
 
   def deleteStudentByName(name: String): Future[Unit] = {
@@ -88,14 +88,14 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   }
 
   def deleteStudentById(id: Long): Future[Unit] = {
-    db.run(studentTable.filter(_.id === id).delete).map {_ => ()}
+    db.run(studentTable.filter(_.id === id).delete).map { _ => () }
   }
 
   def deleteStudentByEventAndLeague(event: String, league: String): Future[Unit] = {
     db.run(studentTable
       .filter(_.event === event)
       .filter(_.league === league)
-      .delete).map{ _ => ()}
+      .delete).map { _ => () }
   }
 
   def getLeagueInfoListByEvent(event: String): Future[Seq[LeagueInfo]] = {
@@ -106,16 +106,16 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
   }
 
   def getSubLeagueListByEventAndLeague(event: String, league: String): Future[Seq[String]] = {
-      for {
-        a <- getStudentsPerEvent(event)
-        b <- Future.successful(a.filter(_.league == league).map(a => a.subLeague))
-      } yield b.distinct
+    for {
+      a <- getStudentsPerEvent(event)
+      b <- Future.successful(a.filter(_.league == league).map(a => a.subLeague))
+    } yield b.distinct
   }
 
   def getLeagueListByEvent(event: String): Future[Seq[String]] = {
     for {
       students <- getStudentsPerEvent(event)
-      leagueInfo <- Future.successful(students.map { b => b.league})
+      leagueInfo <- Future.successful(students.map { b => b.league })
     } yield leagueInfo.distinct
   }
 
@@ -196,11 +196,19 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       totalTeamSize <- Future.successful(teamSize(studentsPerEvent))
       totalStudentSize <- Future.successful(studentsPerEvent.size)
       students <- studentsPerLeague
-      //we want to sort by team name for now
+    //we want to sort by team name for now
     } yield StudentsPerCombinedLeague(leagueInfo, students.sortBy(_.teamName), students.size,
       getLocalStudentSize(students), getInternationalStudentSize(students),
       teamSize(students), localTeamSize(students), internationalTeamSize(students),
       getRoundedPercentage(students.size, totalStudentSize), getRoundedPercentage(teamSize(students), totalTeamSize))
+  }
+
+
+  def getStudentsPerCombinedLeague(event: String): Future[Seq[StudentsPerCombinedLeague]] = {
+    for {
+      a <- getLeagueInfoListByEvent(event)
+      b <- Future.sequence(a.map(c => getStudentsPerCombinedLeague(event, c)))
+    } yield b
   }
 
   def getStudentsPerLeague(event: String, league: String): Future[StudentsPerLeague] = {
@@ -221,18 +229,18 @@ class StudentDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvide
       getRoundedPercentage(students.size, totalStudentSize), getRoundedPercentage(teamSize(students), totalTeamSize))
   }
 
- private def getStudentsPerCombinedLeagueFromStudentPerLeague(event: String, s: StudentsPerLeague): Future[StudentsPerLeagueInfo] = {
+  private def getStudentsPerCombinedLeagueFromStudentPerLeague(event: String, s: StudentsPerLeague): Future[StudentsPerLeagueInfo] = {
     for {
       a <- getSubLeagueListByEventAndLeague(event, s.league)
-      b <- Future.sequence(a.map{ x => getStudentsPerCombinedLeague(event, LeagueInfo(s.league,x))})
+      b <- Future.sequence(a.map { x => getStudentsPerCombinedLeague(event, LeagueInfo(s.league, x)) })
     } yield StudentsPerLeagueInfo(s, b)
   }
 
   def getStudentsPerLeagueInfo(event: String): Future[Seq[StudentsPerLeagueInfo]] = {
     for {
       leagueList <- getLeagueListByEvent(event)
-      b <-  Future.sequence(leagueList.map{ l => getStudentsPerLeague(event, l)})
-      c <- Future.sequence(b.map(x =>  getStudentsPerCombinedLeagueFromStudentPerLeague(event, x)))
+      b <- Future.sequence(leagueList.map { l => getStudentsPerLeague(event, l) })
+      c <- Future.sequence(b.map(x => getStudentsPerCombinedLeagueFromStudentPerLeague(event, x)))
     } yield c
   }
 

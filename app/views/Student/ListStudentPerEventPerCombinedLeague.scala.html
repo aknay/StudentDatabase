@@ -1,4 +1,4 @@
-@(user: Option[User], form1: Form[CombinedLeagueNameWithEvent] ,dropDownList: Seq[(String, String)], studentsPerLeagueList: Seq[StudentsPerCombinedLeague])(implicit messages: Messages, flash: Flash)
+@(user: Option[User], form1: Form[CombinedLeagueNameWithEvent] ,dropDownList: Seq[(String, String)], studentsPerLeagueList: Seq[StudentsPerCombinedLeague], totalSizeInfo: Option[TotalSizeInfo])(implicit messages: Messages, flash: Flash)
 @import helper._
 @import b3.vertical.fieldConstructor
 @main("Login User") {
@@ -26,13 +26,13 @@
 
 
 
-
+@if(studentsPerLeagueList.nonEmpty) {
 
 <div class="row">
     <div class="col-md-1"> </div>
     <div class="col-md-10">
 
-        <h3>Student Per League</h3>
+        <h3>Students</h3>
 
         <table class="table">
             <thead>
@@ -74,7 +74,7 @@
     <div class="col-md-1"> </div>
     <div class="col-md-10">
 
-        <h3>Student Per League</h3>
+        <h3>Statistical Number</h3>
 
         <table class="table">
             <thead>
@@ -109,6 +109,36 @@
             }
             </tbody>
         </table>
+        }
+
+        @if(totalSizeInfo.isDefined) {
+        <h3>Total</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Number Of Students</th>
+                <th>Number Of Teams</th>
+                <th>Number Of Local Teams</th>
+                <th>Number of International Teams</th>
+                <th>Number of Local Students</th>
+                <th>Number of International Students</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr>
+                <td>@totalSizeInfo.get.numberOfStudent</td>
+                <td>@totalSizeInfo.get.numberOfTeam</td>
+                <td>@totalSizeInfo.get.numberOfLocalTeam</td>
+                <td>@totalSizeInfo.get.numberOfInternationalTeam</td>
+                <td>@totalSizeInfo.get.numberOfLocalStudent</td>
+                <td>@totalSizeInfo.get.numberOfInternationalStudent</td>
+            </tr>
+
+            </tbody>
+        </table>
+        }
+
         <div class="well"><a href="@routes.StudentController.menu"> Back To Student Menu</a> </div>
     </div>
     <div class="col-md-1"> </div>

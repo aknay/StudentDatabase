@@ -135,15 +135,20 @@ class StudentController @Inject()(components: ControllerComponents,
     if (submittedLeagueInfo.isEmpty) {
       for {
         t <- totalNumberOfCombinedLeague
+        studentsPerEvent <- studentDao.getStudentsPerEvent(event)
+        l <- studentDao.getLeagueInfoListByEvent(event)
+        b <- studentDao.getStudentsPerCombinedLeague(event)
+        totalSizeInfo <- studentDao.getTotalSizeInfoPerEvent(event)
       //we need to pre-fill the event//if we pass the event by value, it will only read first few words before space//strange
-      } yield Ok(views.html.Student.ListStudentPerEventPerCombinedLeague(user, Forms.leagueForm.fill(CombinedLeagueNameWithEvent("", event)), t, Seq()))
+      //all is added to view 'All students from events"
+      } yield Ok(views.html.Student.ListStudentPerEventPerCombinedLeague(user, Forms.leagueForm.fill(CombinedLeagueNameWithEvent("", event)), t :+ ("all", "All"), b, Some(totalSizeInfo)))
     }
     else {
       for {
       //we need to pre-fill the event
         studentsPerLeague <- studentDao.getStudentsPerCombinedLeague(event, submittedLeagueInfo.get)
-        g <- totalNumberOfCombinedLeague
-      } yield Ok(views.html.Student.ListStudentPerEventPerCombinedLeague(user, Forms.leagueForm.fill(CombinedLeagueNameWithEvent("", event)), g, Seq(studentsPerLeague)))
+        t <- totalNumberOfCombinedLeague
+      } yield Ok(views.html.Student.ListStudentPerEventPerCombinedLeague(user, Forms.leagueForm.fill(CombinedLeagueNameWithEvent("", event)), t :+ ("all", "All"), Seq(studentsPerLeague), None))
     }
   }
 
